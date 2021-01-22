@@ -1,0 +1,5 @@
+A -> BC
+C -> DE
+F -> I
+AF -> GH
+DE -> C
