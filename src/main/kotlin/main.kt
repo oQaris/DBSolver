@@ -94,7 +94,7 @@ fun main() {
     }
 
     println("Исходные ФЗ:")
-    println(FDToString(map))
+    println(mapToString(map))
 
     println("Минимальное Покрытие:")
     println("1)")
@@ -109,10 +109,14 @@ fun main() {
                 newMap.remove(k)
             val cl = closure(k, newMap)
             if (cl.contains(it)) {
-                println("${FDToString(mutableMapOf(k to it))}:  $k+-* = $cl есть $it => S=S-{${FDToString(mutableMapOf(k to it))}}")
+                println(
+                    "${mapToString(mutableMapOf(k to it))}:\t${setToString(k)}+S-* = ${setToString(cl.toMutableSet())} э $it => S=S-{${
+                        mapToString(mutableMapOf(k to it))
+                    }}"
+                )
                 map = newMap
             } else
-                println("${FDToString(mutableMapOf(k to it))}:  $k+-* = $cl нет $it => S не меняется")
+                println("${mapToString(mutableMapOf(k to it))}:\t${setToString(k)}+S-* = ${setToString(cl.toMutableSet())} не э $it => S не меняется")
         }
     }
     println("2)")
@@ -131,18 +135,22 @@ fun main() {
                     }
                     map = newMap
                     println(
-                        "${FDToString(mutableMapOf(set.toMutableSet() to v))}:  $set+ = $cl есть $v => $it удаляем из дет. ${
-                            FDToString(
-                                mutableMapOf(k to v)
+                        "${mapToString(mutableMapOf(set.toMutableSet() to v))}:  ${setToString(set.toMutableSet())}+ = ${
+                            setToString(
+                                cl.toMutableSet()
                             )
+                        } э ${setToString(v)} => $it удаляем из дет. ${
+                            mapToString(mutableMapOf(k to v))
                         }"
                     )
                 } else
                     println(
-                        "${FDToString(mutableMapOf(set.toMutableSet() to v))}:  $set+ = $cl нет $v => $it оставляем в дет. ${
-                            FDToString(
-                                mutableMapOf(k to v)
+                        "${mapToString(mutableMapOf(set.toMutableSet() to v))}:  ${setToString(set.toMutableSet())}+ = ${
+                            setToString(
+                                cl.toMutableSet()
                             )
+                        } не э ${setToString(v)} => $it оставляем в дет. ${
+                            mapToString(mutableMapOf(k to v))
                         }"
                     )
             }
@@ -150,7 +158,7 @@ fun main() {
     println("Мин. Покрытие:")
     map.forEach { (t, u) ->
         u.forEach {
-            println(FDToString(mutableMapOf(t to it)))
+            println(mapToString(mutableMapOf(t to it)))
         }
     }
     println()
@@ -171,20 +179,20 @@ fun main() {
             }
             if (closure.minus(det).isNotEmpty())
                 fz[det] = closure.minus(det)
-            println("$det+ = $closure")
+            println("${setToString(det.toMutableSet())}+ = ${setToString(closure.toMutableSet())}")
         }
     println()
 
     println("Минимальные Ключи:")
     keys.forEach {
-        println(it)
+        println(setToString(it.toMutableSet()))
     }
     println()
 
     println("Нетривиальные ФЗ с 1 атрибутом в зависимой части:")
     fz.forEach { (t, u) ->
         u.forEach {
-            println(FDToString(mutableMapOf(t.toMutableSet() to it)))
+            println(mapToString(mutableMapOf(t.toMutableSet() to it)))
         }
     }
     println()
@@ -298,7 +306,7 @@ fun main() {
     printMtx(matrix, attrIdx, dcmpIdx)
     var isLossConnectProperty = true
     for ((k, v) in map.entries) {
-        println("${FDToString(mutableMapOf(k to v))}:")
+        println("${mapToString(mutableMapOf(k to v))}:")
         // Logic
         var setIdxRow = mutableSetOf<Int>()
         for (i in dcmpIdx.indices)
@@ -357,29 +365,36 @@ fun main() {
     println()
 
     println("Проверка декомпозиции на свойство сохранения ФЗ:")
+    println("1.")
     val crnc = mutableMapOf<MutableSet<String>, MutableSet<String>>()
-    map.forEach { (t, _) ->
-        crnc[t.toMutableSet()] = closure(t.toMutableSet(), map).minus(t).toMutableSet()
+    map.forEach { (t, u) ->
+        val clm = closure(t.toMutableSet(), map).minus(t)
+        print("${setToString(t)}+S-* = ${setToString(clm.toMutableSet())} => ")
+        if (u == clm)
+            println("G не меняется")
+        else println("Заменяем ${mapToString(mutableMapOf(t to u))} на ${mapToString(mutableMapOf(t to clm.toMutableSet()))}")
+        crnc[t.toMutableSet()] = clm.toMutableSet()
     }
-    println("1. УНП = ${FDToString(crnc)}  H = {}")
-    print("2. G = ")
+    println("УНП = {${mapToString(crnc)}}, H = {}")
+    println("2.")
+    print("G = ")
     val listOut = mutableListOf<String>()
     crnc.forEach { (t, u) ->
         u.forEach { attr ->
-            listOut.add(FDToString(mutableMapOf(t to attr)))
+            listOut.add(mapToString(mutableMapOf(t to attr)))
         }
     }
     print("{${listOut.joinToString("; ")}}")
     println()
     println("3.")
-    val H = mutableMapOf<MutableSet<String>, MutableSet<String>>()
+    val h = mutableMapOf<MutableSet<String>, MutableSet<String>>()
     crnc.forEach { (t, u) ->
         u.forEach { attr ->
-            print("${FDToString(mutableMapOf(t to attr))}:\t")
+            print("${mapToString(mutableMapOf(t to attr))}:\t")
             var flag = false
             for (i in dcmpIdx.indices) {
                 val un = t.union(mutableSetOf(attr))
-                print("$un ")
+                print("${setToString(un.toMutableSet())} ")
                 if (dcmpIdx[i].containsAll(un)) {
                     print("⊆ R${i + 1} ")
                     flag = true
@@ -387,67 +402,74 @@ fun main() {
                 } else print("не ⊆ R${i + 1}, ")
             }
             if (!flag) {
-                H.getOrPut(t) { mutableSetOf() }.add(attr)
-                print("=>\tH += {${FDToString(mutableMapOf(t to attr))}}")
+                h.getOrPut(t) { mutableSetOf() }.add(attr)
+                print("=>\tH += {${mapToString(mutableMapOf(t to attr))}}")
             }
             println()
         }
     }
-    print("4. Множество H ")
-    if (H.isEmpty())
+    println("4")
+    print("Множество H ")
+    if (h.isEmpty())
         println("пустое => сво-во сохранения ФЗ выполняется")
     else {
         println("не пустое => переход к шагу 5")
-        val G = mutableMapOf<MutableSet<String>, MutableSet<String>>()
+        val g = mutableMapOf<MutableSet<String>, MutableSet<String>>()
         map.forEach { (t, u) ->
-            G[t.toMutableSet()] = u.toMutableSet()
+            g[t.toMutableSet()] = u.toMutableSet()
         }
-        H.forEach { (t, u) ->
-            G[t] = G[t]?.minus(u)?.toMutableSet()!!
-            if (G[t]?.size == 0)
-                G.remove(t)
+        h.forEach { (t, u) ->
+            g[t] = g[t]?.minus(u)?.toMutableSet()!!
+            if (g[t]?.size == 0)
+                g.remove(t)
         }
         println("5.")
         var flag = true
-        for ((t, u) in H.entries) {
-            print("$t+G-H = ")
-            val cl = closure(t, G)
-            print(cl)
+        for ((t, u) in h.entries) {
+            print("${setToString(t)}+G-H = ")
+            val cl = closure(t, g)
+            print(setToString(cl.toMutableSet()))
             if (!cl.containsAll(u)) {
                 flag = false
-                print(" не ⊇ $u")
+                print(" не ⊇ ${setToString(u)}")
                 break
             }
-            println(" ⊇ $u")
+            println(" ⊇ ${setToString(u)}")
         }
         if (flag)
             println("=> Декомпозиция обладает св-вом сохранения ФЗ!")
-        else println("=> Декомпозиция НЕ обладает св-вом сохранения ФЗ")
+        else println(" => Декомпозиция НЕ обладает св-вом сохранения ФЗ")
     }
 }
 
-fun FDToString(map: MutableMap<MutableSet<String>, MutableSet<String>>): String {
+fun mapToString(map: MutableMap<MutableSet<String>, MutableSet<String>>): String {
     var out = ""
     map.forEach { (t, u) ->
-        out += "${t.joinToString(",")}–>${u.joinToString(",")}; "
+        out += "${setToString(t)}–>${setToString(u)}; "
     }
     return out.dropLast(2)
 }
 
-@JvmName("FDToString1")
-fun FDToString(map: MutableMap<MutableSet<String>, String>): String {
+@JvmName("mapToString1")
+fun mapToString(map: MutableMap<MutableSet<String>, String>): String {
     var out = ""
     map.forEach { (t, u) ->
-        out += "${t.joinToString(",")}–>$u; "
+        out += "${setToString(t)}–>$u; "
     }
     return out.dropLast(2)
+}
+
+fun setToString(set: MutableSet<String>): String {
+    if (set.size == 1)
+        return set.first()
+    return "{${set.joinToString(",")}}"
 }
 
 fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
     var maxLen = 0
     column.forEach {
         if (it.toString().length > maxLen)
-            maxLen = it.toString().length
+            maxLen = it.size * 2 + 2
     }
     maxLen++
     print(" ".padStart(maxLen))
@@ -456,7 +478,7 @@ fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set
     }
     println()
     matrix.forEachIndexed { i, arr ->
-        print("${column[i]}".padEnd(maxLen))
+        print(setToString(column[i].toMutableSet()).padEnd(maxLen))
         arr.forEachIndexed { j, it ->
             print(it.padEnd(title[j].length + 2))
         }
