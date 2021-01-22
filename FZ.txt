@@ -1,5 +1,5 @@
-A -> BC
-C -> DE
-F -> I
-AF -> GH
-DE -> C
+SuperA  ->  Bbb     Cc
+Cc -> doubleD epsilonE
+F      ->         I749
+SuperA F->  G...     H?
+doubleD  epsilonE  ->Cc

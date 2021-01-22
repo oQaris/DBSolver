@@ -1,4 +1,4 @@
-A B C
-F I
-A F G H
-C D E
+SuperA  Bbb  Cc
+F  I749
+SuperA  F  G...  H?
+Cc doubleD epsilonE
