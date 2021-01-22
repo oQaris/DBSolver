@@ -1,5 +1,3 @@
-SuperA  ->  Bbb     Cc
-Cc -> doubleD epsilonE
-F      ->         I749
-SuperA F->  G...     H?
-doubleD  epsilonE  ->Cc
+Ч -> ЧТ
+К -> КН КА С
+Д К -> Б Ч

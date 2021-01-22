@@ -72,13 +72,13 @@ fun closure(attributeSet: Set<String>, funcDeps: MutableMap<MutableSet<String>, 
     return closure
 }
 
-fun main(args: Array<String>) {
+fun main() {
     var map = mutableMapOf<MutableSet<String>, MutableSet<String>>()
     val allAtrSet = mutableSetOf<String>()
 
     val file = File("FZ.txt")
     file.forEachLine { line ->
-        val fz = line.split("->")
+        val fz = line.split("->", "–>", "⇒")
         assert(fz.size == 2)
         val det = fz[0].split("\\s+".toRegex()).toMutableSet()
         det.remove("")
@@ -94,10 +94,7 @@ fun main(args: Array<String>) {
     }
 
     println("Исходные ФЗ:")
-    map.forEach { (t, u) ->
-        println("$t -> $u")
-    }
-    println()
+    println(FDToString(map))
 
     println("Минимальное Покрытие:")
     println("1)")
@@ -112,10 +109,10 @@ fun main(args: Array<String>) {
                 newMap.remove(k)
             val cl = closure(k, newMap)
             if (cl.contains(it)) {
-                println("$k->$it:  $k+-* = $cl есть $it => S=S-{$k->$it}")
+                println("${FDToString(mutableMapOf(k to it))}:  $k+-* = $cl есть $it => S=S-{${FDToString(mutableMapOf(k to it))}}")
                 map = newMap
             } else
-                println("$k->$it:  $k+-* = $cl нет $it => S не меняется")
+                println("${FDToString(mutableMapOf(k to it))}:  $k+-* = $cl нет $it => S не меняется")
         }
     }
     println("2)")
@@ -133,15 +130,27 @@ fun main(args: Array<String>) {
                         else newMap[t.toMutableSet()] = u.toMutableSet()
                     }
                     map = newMap
-                    println("$set->$v:  $set+ = $cl есть $v => $it удаляем из дет. $k->$v")
+                    println(
+                        "${FDToString(mutableMapOf(set.toMutableSet() to v))}:  $set+ = $cl есть $v => $it удаляем из дет. ${
+                            FDToString(
+                                mutableMapOf(k to v)
+                            )
+                        }"
+                    )
                 } else
-                    println("$set->$v:  $set+ = $cl нет $v => $it оставляем в дет. $k->$v")
+                    println(
+                        "${FDToString(mutableMapOf(set.toMutableSet() to v))}:  $set+ = $cl нет $v => $it оставляем в дет. ${
+                            FDToString(
+                                mutableMapOf(k to v)
+                            )
+                        }"
+                    )
             }
     }
     println("Мин. Покрытие:")
     map.forEach { (t, u) ->
         u.forEach {
-            println("$t -> $it")
+            println(FDToString(mutableMapOf(t to it)))
         }
     }
     println()
@@ -173,9 +182,9 @@ fun main(args: Array<String>) {
     println()
 
     println("Нетривиальные ФЗ с 1 атрибутом в зависимой части:")
-    fz.forEach { itFz ->
-        itFz.value.forEach {
-            println("${itFz.key} -> $it")
+    fz.forEach { (t, u) ->
+        u.forEach {
+            println(FDToString(mutableMapOf(t.toMutableSet() to it)))
         }
     }
     println()
@@ -259,7 +268,7 @@ fun main(args: Array<String>) {
     //printDecomp(newSheme, keys[0])
     println()*/*/
 
-
+    println()
     println("Проверка декомпозиции на свойство соединения без потерь:")
     val decomp = mutableSetOf<MutableSet<String>>()
     val file2 = File("DCMP.txt")
@@ -289,7 +298,7 @@ fun main(args: Array<String>) {
     printMtx(matrix, attrIdx, dcmpIdx)
     var isLossConnectProperty = true
     for ((k, v) in map.entries) {
-        println("$k -> $v:")
+        println("${FDToString(mutableMapOf(k to v))}:")
         // Logic
         var setIdxRow = mutableSetOf<Int>()
         for (i in dcmpIdx.indices)
@@ -345,43 +354,43 @@ fun main(args: Array<String>) {
     if (!isLossConnectProperty)
         println("Т.к. были перебраны все ФЗ, а строка, полностью состоящая из A так и не появилась, то св-во соединения без потерь не выполняется!")
     println()
+    println()
 
     println("Проверка декомпозиции на свойство сохранения ФЗ:")
-    val crnc = mutableMapOf<Set<String>, Set<String>>()
-    map.forEach { (t, u) ->
-        crnc[t.toMutableSet()] = closure(u.toMutableSet(), map).minus(t)
+    val crnc = mutableMapOf<MutableSet<String>, MutableSet<String>>()
+    map.forEach { (t, _) ->
+        crnc[t.toMutableSet()] = closure(t.toMutableSet(), map).minus(t).toMutableSet()
     }
-    print("1. УНП = ")
-    crnc.forEach { (t, u) ->
-        print("$t->$u ")
-    }
-    println("  H = 0")
+    println("1. УНП = ${FDToString(crnc)}  H = {}")
     print("2. G = ")
+    val listOut = mutableListOf<String>()
     crnc.forEach { (t, u) ->
         u.forEach { attr ->
-            print("$t->$attr ")
+            listOut.add(FDToString(mutableMapOf(t to attr)))
         }
     }
+    print("{${listOut.joinToString("; ")}}")
     println()
     println("3.")
-    val H = mutableMapOf<Set<String>, String>()
+    val H = mutableMapOf<MutableSet<String>, MutableSet<String>>()
     crnc.forEach { (t, u) ->
         u.forEach { attr ->
-            print("$t->$attr: ")
+            print("${FDToString(mutableMapOf(t to attr))}:\t")
             var flag = false
             for (i in dcmpIdx.indices) {
                 val un = t.union(mutableSetOf(attr))
                 print("$un ")
                 if (dcmpIdx[i].containsAll(un)) {
-                    print("c R${i + 1} ")
+                    print("⊆ R${i + 1} ")
                     flag = true
                     break
-                } else print("не c R${i + 1}, ")
+                } else print("не ⊆ R${i + 1}, ")
             }
-            print("=> ")
-            if (!flag)
-                H[t] = attr
-            println("H=$H")
+            if (!flag) {
+                H.getOrPut(t) { mutableSetOf() }.add(attr)
+                print("=>\tH += {${FDToString(mutableMapOf(t to attr))}}")
+            }
+            println()
         }
     }
     print("4. Множество H ")
@@ -394,7 +403,7 @@ fun main(args: Array<String>) {
             G[t.toMutableSet()] = u.toMutableSet()
         }
         H.forEach { (t, u) ->
-            G[t]?.remove(u)
+            G[t] = G[t]?.minus(u)?.toMutableSet()!!
             if (G[t]?.size == 0)
                 G.remove(t)
         }
@@ -404,12 +413,12 @@ fun main(args: Array<String>) {
             print("$t+G-H = ")
             val cl = closure(t, G)
             print(cl)
-            if (!cl.contains(u)) {
+            if (!cl.containsAll(u)) {
                 flag = false
-                print(" не э $u")
+                print(" не ⊇ $u")
                 break
             }
-            println(" э $u")
+            println(" ⊇ $u")
         }
         if (flag)
             println("=> Декомпозиция обладает св-вом сохранения ФЗ!")
@@ -417,8 +426,21 @@ fun main(args: Array<String>) {
     }
 }
 
-fun printFD(map: MutableMap<Set<String>, Set<String>>) {
+fun FDToString(map: MutableMap<MutableSet<String>, MutableSet<String>>): String {
+    var out = ""
+    map.forEach { (t, u) ->
+        out += "${t.joinToString(",")}–>${u.joinToString(",")}; "
+    }
+    return out.dropLast(2)
+}
 
+@JvmName("FDToString1")
+fun FDToString(map: MutableMap<MutableSet<String>, String>): String {
+    var out = ""
+    map.forEach { (t, u) ->
+        out += "${t.joinToString(",")}–>$u; "
+    }
+    return out.dropLast(2)
 }
 
 fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
@@ -435,10 +457,8 @@ fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set
     println()
     matrix.forEachIndexed { i, arr ->
         print("${column[i]}".padEnd(maxLen))
-        arr.forEach {
-            if (it.length == 2)
-                print("$it ")
-            else print("$it  ")
+        arr.forEachIndexed { j, it ->
+            print(it.padEnd(title[j].length + 2))
         }
         println()
     }
