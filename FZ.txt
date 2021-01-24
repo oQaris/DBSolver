@@ -1,5 +1,4 @@
-A -> B
-B -> A
-H -> F G
-A H -> C D E
-E C -> A H
+A -> B C D
+B -> A C D
+A I -> E F G
+B I -> E F G

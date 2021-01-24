@@ -1,37 +1,85 @@
 import com.google.common.collect.HashMultiset
 import java.io.File
 
-/*data class Relation(val attrs: MutableSet<String> = mutableSetOf()) {
-    private val _PK = mutableSetOf<String>()
-    private val _FK = mutableSetOf<String>()
+class Relations(private val funcDep: MutableMap<MutableSet<String>, MutableSet<String>> = linkedMapOf()) :
+    MutableMap<MutableSet<String>, MutableSet<String>> by funcDep {
 
-    fun addPK(atr: String) = _PK.add(atr)
-    fun addFK(atr: String) = _FK.add(atr)
-
-    fun print(idx: Int, key: Set<String>) {
-        var out = "R$idx("
-        attrs.forEach {
-            out += "$it"
-            if (_PK.contains(it))
-                out += "(PK)"
-            if (_FK.contains(it))
-                out += "(FK)"
-            out += ", "
+    val unionPairs: MutableSet<Pair<Set<String>, Set<String>>>
+        get() {
+            val entries = mutableSetOf<Pair<Set<String>, Set<String>>>()
+            funcDep.forEach { (det, dep) ->
+                entries.add(det to dep)
+            }
+            return entries
         }
-        println(out.substring(0..out.length - 3) + ")")
+    val singlePairs: MutableSet<Pair<Set<String>, String>>
+        get() {
+            val entries = mutableSetOf<Pair<Set<String>, String>>()
+            funcDep.forEach { (det, dep) ->
+                dep.forEach {
+                    entries.add(det to it)
+                }
+            }
+            return entries
+        }
+    /*val multiDetPairs: MutableSet<Pair<Set<String>, String>>
+        get() {
+            val entries = mutableSetOf<Pair<Set<String>, String>>()
+            funcDep.forEach { (det, dep) ->
+                if (det.size > 1)
+                    dep.forEach {
+                        entries.add(det to it)
+                    }
+            }
+            return entries
+        }*/
+
+    fun remove(fd: Pair<Any, Any>) {
+        //todo Сделать красиво
+        if (fd.first is String) {
+            if (fd.second is String) {
+                if (funcDep[mutableSetOf(fd.first as String)]?.removeAll(mutableSetOf(fd.second)) == true)
+                    funcDep.remove(mutableSetOf(fd.first as String))
+            } else if (fd.second is Set<*> && fd.second.javaClass == String::javaClass) {
+                if (funcDep[mutableSetOf(fd.first as String)]?.removeAll(fd.second as Set<*>) == true)
+                    funcDep.remove(mutableSetOf(fd.first as String))
+            }
+        } else if (fd.first is Set<*> && fd.first.javaClass == String::javaClass) {
+            if (fd.second is String) {
+                if (funcDep[fd.first]?.removeAll(mutableSetOf(fd.second)) == true)
+                    funcDep.remove(fd.first)
+            } else if (fd.second is Set<*> && fd.second.javaClass == String::javaClass) {
+                if (funcDep[fd.first]?.removeAll(fd.second as Set<*>) == true)
+                    funcDep.remove(fd.first)
+            }
+        }
+    }
+
+    fun copy(): Relations {
+        val out = Relations()
+        funcDep.forEach { (t, u) ->
+            out[t.toMutableSet()] = u.toMutableSet()
+        }
+        return out
+    }
+
+    fun toString(separator: String): String {
+        var out = ""
+        funcDep.forEach { (t, u) ->
+            out += "${setToString(t)}–>${setToString(u)}$separator"
+        }
+        return out.dropLast(2)
+    }
+
+    private fun setToString(set: MutableSet<String>): String {
+        if (set.size == 1)
+            return set.first()
+        return "{${set.joinToString(",")}}"
     }
 }
 
-data class Decomposition(val relations: MutableSet<Relation> = mutableSetOf()) {
-    *//*fun add(rel: Relation) = relations.add(rel)
-    fun get(rel: Relation) = relations.add(rel)*//*
-
-    fun print(key: Set<String>) {
-        relations.forEachIndexed { i, rel ->
-            rel.print(i, key)
-        }
-    }
-}*/
+/*fun Pair<Set<String>, Set<String>>.toString() =
+    "${setToString(this.first.toMutableSet())}–>${setToString(this.second.toMutableSet())}"*/
 
 fun combinations(
     arr: List<String>,
@@ -53,80 +101,81 @@ fun combinations(
     return otv
 }
 
-fun closure(attributeSet: Set<String>, funcDeps: MutableMap<MutableSet<String>, MutableSet<String>>): Set<String> {
-    val closure = setOf<String>().union(attributeSet).toMutableSet()
-    var j = 1
-    while (j <= closure.size) {
-        var comb = combinations(closure.toList(), j)
-        var g = 0
-        while (g < comb.size) {
-            if (funcDeps[comb[g]] != null && closure.addAll(funcDeps[comb[g]]!!)) {
-                comb = combinations(closure.toList(), j)
-                j = 0
-                g = -1
-            }
-            g++
-        }
-        j++
+fun closure(attributeSet: Set<String>, funcDeps: Relations): Set<String> {
+    val closure = attributeSet.toMutableSet()
+    var isChanged = true
+    while (isChanged) {
+        isChanged = false
+        for ((det, dep) in funcDeps.unionPairs)
+            if (closure.containsAll(det))
+                isChanged = closure.addAll(dep)
     }
     return closure
 }
 
 fun main() {
-    var map = mutableMapOf<MutableSet<String>, MutableSet<String>>()
+    var map = Relations()
     val allAtrSet = mutableSetOf<String>()
+    val splitterSet = "\\s+".toRegex()
+
+    //todo Убрать везде страшный toMutableSet()
 
     val file = File("FZ.txt")
     file.forEachLine { line ->
         val fz = line.split("->", "–>", "⇒")
-        assert(fz.size == 2)
-        val det = fz[0].split("\\s+".toRegex()).toMutableSet()
+        if (fz.size != 2)
+            throw IllegalArgumentException("В функциональной зависимости должно быть только 2 части!")
+
+        val det = fz[0].split(splitterSet).toMutableSet()
         det.remove("")
         det.forEach { allAtrSet.add(it) }
-
         map.putIfAbsent(det.toMutableSet(), mutableSetOf())
-        val dep = fz[1].split("\\s+".toRegex()).toSet().toMutableSet()
+
+        val dep = fz[1].split(splitterSet).toMutableSet()
         dep.remove("")
         dep.forEach {
-            allAtrSet.add(it)
             map[det]?.add(it)
+            allAtrSet.add(it)
         }
     }
 
     println("Исходные ФЗ:")
-    println(mapToString(map))
+    println(map.toString("; "))
 
     println("Минимальное Покрытие:")
     println("1)")
-    map.forEach { (k, v) ->
-        v.forEach {
-            val newMap = mutableMapOf<MutableSet<String>, MutableSet<String>>()
-            map.forEach { (t, u) ->
-                newMap[t.toMutableSet()] = u.toMutableSet()
-            }
-            newMap[k]?.remove(it)
-            if (newMap[k]?.size == 0)
-                newMap.remove(k)
-            val cl = closure(k, newMap)
-            if (cl.contains(it)) {
-                println(
-                    "${mapToString(mutableMapOf(k to it))}:\t${setToString(k)}+S-* = ${setToString(cl.toMutableSet())} э $it => S=S-{${
-                        mapToString(mutableMapOf(k to it))
-                    }}"
-                )
-                map = newMap
-            } else
-                println("${mapToString(mutableMapOf(k to it))}:\t${setToString(k)}+S-* = ${setToString(cl.toMutableSet())} не э $it => S не меняется")
-        }
+    for ((det, v) in map.singlePairs) {
+        val newMap = map.copy()
+        newMap.remove(det to v)
+        val cl = closure(det, newMap)
+        if (cl.contains(v)) {
+            println(
+                "${mapToString(mutableMapOf(det.toMutableSet() to v))}:\t${setToString(det.toMutableSet())}+S-* = ${
+                    setToString(
+                        cl.toMutableSet()
+                    )
+                } э $v => S=S-{${
+                    mapToString(mutableMapOf(det.toMutableSet() to v))
+                }}"
+            )
+            map = newMap
+        } else
+            println(
+                "${mapToString(mutableMapOf(det.toMutableSet() to v))}:\t${setToString(det.toMutableSet())}+S-* = ${
+                    setToString(
+                        cl.toMutableSet()
+                    )
+                } не э $v => S не меняется"
+            )
     }
     println("2)")
-    map.forEach { (k, v) ->
+    for ((k, v) in map.unionPairs) {
         if (k.size > 1)
             k.forEach {
                 val set = k.minus(setOf(it))
                 val cl = closure(set, map)
                 if (cl.containsAll(v)) {
-                    val newMap = mutableMapOf<MutableSet<String>, MutableSet<String>>()
+                    val newMap = Relations()
                     map.forEach { (t, u) ->
                         if (t == k)
                             newMap.getOrPut(set.toMutableSet()) { u.toMutableSet() }
@@ -135,31 +184,29 @@ fun main() {
                     }
                     map = newMap
                     println(
-                        "${mapToString(mutableMapOf(set.toMutableSet() to v))}:  ${setToString(set.toMutableSet())}+ = ${
+                        "${mapToString(mutableMapOf(set.toMutableSet() to v.toMutableSet()))}:  ${setToString(set.toMutableSet())}+ = ${
                             setToString(
                                 cl.toMutableSet()
                             )
-                        } э ${setToString(v)} => $it удаляем из дет. ${
-                            mapToString(mutableMapOf(k to v))
+                        } э ${setToString(v.toMutableSet())} => $it удаляем из дет. ${
+                            mapToString(mutableMapOf(k.toMutableSet() to v.toMutableSet()))
                         }"
                     )
                 } else
                     println(
-                        "${mapToString(mutableMapOf(set.toMutableSet() to v))}:  ${setToString(set.toMutableSet())}+ = ${
+                        "${mapToString(mutableMapOf(set.toMutableSet() to v.toMutableSet()))}:  ${setToString(set.toMutableSet())}+ = ${
                             setToString(
                                 cl.toMutableSet()
                             )
-                        } не э ${setToString(v)} => $it оставляем в дет. ${
-                            mapToString(mutableMapOf(k to v))
+                        } не э ${setToString(v.toMutableSet())} => $it оставляем в дет. ${
+                            mapToString(mutableMapOf(k.toMutableSet() to v.toMutableSet()))
                         }"
                     )
             }
     }
     println("Мин. Покрытие:")
-    map.forEach { (t, u) ->
-        u.forEach {
-            println(mapToString(mutableMapOf(t to it)))
-        }
+    for ((k, v) in map.singlePairs) {
+        println(mapToString(mutableMapOf(k.toMutableSet() to v)))
     }
     println()
 
@@ -276,6 +323,7 @@ fun main() {
     //printDecomp(newSheme, keys[0])
     println()*/*/
 
+
     println()
     println("Проверка декомпозиции на свойство соединения без потерь:")
     val decomp = mutableSetOf<MutableSet<String>>()
@@ -283,13 +331,6 @@ fun main() {
     file2.forEachLine { line ->
         val set = line.split("\\s+".toRegex()).toMutableSet()
         set.remove("")
-        //map.getOrPut(fz[0].trim()) { mutableSetOf() }.add(fz[1].trim())
-        //val set = mutableSetOf<String>()
-        /*fz.forEach {
-            assert(it.toStringArray().size == 1)
-            set.add(it.toStringArray()[0])
-            allAtrSet.add(it.toStringArray()[0])
-        }*/
         decomp.add(set.toMutableSet())
         allAtrSet.addAll(set)
     }
@@ -366,8 +407,8 @@ fun main() {
 
     println("Проверка декомпозиции на свойство сохранения ФЗ:")
     println("1.")
-    val crnc = mutableMapOf<MutableSet<String>, MutableSet<String>>()
-    map.forEach { (t, u) ->
+    val crnc = Relations()
+    for ((t, u) in map) {
         val clm = closure(t.toMutableSet(), map).minus(t)
         print("${setToString(t)}+S-* = ${setToString(clm.toMutableSet())} => ")
         if (u == clm)
@@ -379,51 +420,44 @@ fun main() {
     println("2.")
     print("G = ")
     val listOut = mutableListOf<String>()
-    crnc.forEach { (t, u) ->
-        u.forEach { attr ->
-            listOut.add(mapToString(mutableMapOf(t to attr)))
-        }
+    for ((t, attr) in crnc.singlePairs) {
+        listOut.add(mapToString(mutableMapOf(t.toMutableSet() to attr)))
     }
     print("{${listOut.joinToString("; ")}}")
     println()
     println("3.")
-    val h = mutableMapOf<MutableSet<String>, MutableSet<String>>()
-    crnc.forEach { (t, u) ->
-        u.forEach { attr ->
-            print("${mapToString(mutableMapOf(t to attr))}:\t")
-            var flag = false
-            for (i in dcmpIdx.indices) {
-                val un = t.union(mutableSetOf(attr))
-                print("${setToString(un.toMutableSet())} ")
-                if (dcmpIdx[i].containsAll(un)) {
-                    print("⊆ R${i + 1} ")
-                    flag = true
-                    break
-                } else print("не ⊆ R${i + 1}, ")
-            }
-            if (!flag) {
-                h.getOrPut(t) { mutableSetOf() }.add(attr)
-                print("=>\tH += {${mapToString(mutableMapOf(t to attr))}}")
-            }
-            println()
+    val h = Relations()
+    for ((t, attr) in crnc.singlePairs) {
+        print("${mapToString(mutableMapOf(t.toMutableSet() to attr))}:\t")
+        var flag = false
+        for (i in dcmpIdx.indices) {
+            val un = t.union(mutableSetOf(attr))
+            print("${setToString(un.toMutableSet())} ")
+            if (dcmpIdx[i].containsAll(un)) {
+                print("⊆ R${i + 1} ")
+                flag = true
+                break
+            } else print("не ⊆ R${i + 1}, ")
         }
+        if (!flag) {
+            h.getOrPut(t.toMutableSet()) { mutableSetOf() }.add(attr)
+            print("=>\tH += {${mapToString(mutableMapOf(t.toMutableSet() to attr))}}")
+        }
+        println()
     }
-    println("4")
+    println("4.")
     print("Множество H ")
     if (h.isEmpty())
         println("пустое => сво-во сохранения ФЗ выполняется")
     else {
         println("не пустое => переход к шагу 5")
-        val g = mutableMapOf<MutableSet<String>, MutableSet<String>>()
-        map.forEach { (t, u) ->
-            g[t.toMutableSet()] = u.toMutableSet()
-        }
-        h.forEach { (t, u) ->
+        println("5.")
+        val g = map.copy()
+        for ((t, u) in h) {
             g[t] = g[t]?.minus(u)?.toMutableSet()!!
             if (g[t]?.size == 0)
                 g.remove(t)
         }
-        println("5.")
         var flag = true
         for ((t, u) in h.entries) {
             print("${setToString(t)}+G-H = ")
@@ -442,6 +476,7 @@ fun main() {
     }
 }
 
+@Deprecated("Использовать toString в Relations")
 fun mapToString(map: MutableMap<MutableSet<String>, MutableSet<String>>): String {
     var out = ""
     map.forEach { (t, u) ->
