@@ -1,3 +1,0 @@
-A B
-A C D
-A I E F G

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">DBSolver</string>
+    <string name="solve">Вычислить</string>
+</resources>
