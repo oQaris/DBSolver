@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!--    <include domain=["file" | "database" | "sharedpref" | "external" | "root"]-->
+    <!--    path="string"-->
+    <!--    requireFlags=["clientSideEncryption" | "deviceToDeviceTransfer"] />-->
+    <!--    <exclude domain=["file" | "database" | "sharedpref" | "external" | "root"]-->
+    <!--    path="string" />-->
+    <include
+        domain="sharedpref"
+        path="." />
+    <!--<exclude
+        domain="sharedpref"
+        path="device.xml" />-->
+</full-backup-content>

@@ -7,45 +7,61 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!--    <EditText-->
-    <!--        android:id="@+id/editText"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="0dp"-->
-    <!--        android:autofillHints="Функциональные Зависимости введите здесь"-->
-    <!--        android:inputType="textMultiLine"-->
-    <!--        app:layout_constraintEnd_toStartOf="@id/button"-->
-    <!--        app:layout_constraintHeight_percent="0.25"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent"-->
-    <!--        tools:ignore="LabelFor" />-->
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/fdRecyclerView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/button"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline"
+        app:layout_constraintEnd_toStartOf="@id/line"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View
+        android:id="@+id/line"
+        android:layout_width="3dp"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        app:layout_constraintBottom_toBottomOf="@id/guideline"
+        app:layout_constraintEnd_toStartOf="@id/dcmpRecyclerView"
+        app:layout_constraintStart_toEndOf="@id/fdRecyclerView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dcmpRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/line"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.3" />
+
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnSolve"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="btnSolveClick"
         android:text="@string/solve"
-        app:layout_constraintBottom_toBottomOf="@id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/recyclerView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/guideline" />
 
     <ScrollView
+        android:id="@+id/resultScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="15dp"
+        android:layout_marginStart="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recyclerView">
+        app:layout_constraintTop_toBottomOf="@id/guideline">
 
         <TextView
             android:id="@+id/textView"

@@ -31,9 +31,9 @@ fun readRelations(src: List<Pair<String, String>>): Relations {
     return out
 }
 
-fun readDecomposition(file: File = File("DCMP.txt"), rel: Relations): Set<Set<String>> {
+fun readDecomposition(src: List<String>, rel: Relations): Set<Set<String>> {
     val out = mutableSetOf<Set<String>>()
-    file.forEachLine { line ->
+    src.forEach { line ->
         val set = line.split(delimiter).toMutableSet()
         set.remove("")
         out.add(set)

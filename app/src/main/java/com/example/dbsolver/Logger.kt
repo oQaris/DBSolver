@@ -1,21 +1,26 @@
 package com.example.dbsolver
 
 object Log {
+    var turnOn = true
     var str = ""
         private set
 
-    fun ln(line: String, isLog: Boolean) {
-        if (isLog)
+    fun ln(line: String) {
+        if (turnOn)
             str += line + "\n"
     }
 
-    fun ln(isLog: Boolean) {
-        if (isLog)
+    fun ln() {
+        if (turnOn)
             str += "\n"
     }
 
-    fun l(line: String, isLog: Boolean) {
-        if (isLog)
+    fun l(line: String) {
+        if (turnOn)
             str += line
+    }
+
+    fun clear() {
+        str = ""
     }
 }

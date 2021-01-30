@@ -5,11 +5,10 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/txtNum"
+        android:id="@+id/txtNumF"
+        android:text="@string/num_filler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="10dp"
-        android:text="1)"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -18,12 +17,13 @@
         android:id="@+id/txtDet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autofillHints="@string/hint_det"
+        android:hint="@string/hint_det"
         android:inputType="textCapCharacters"
-        android:scrollbars="horizontal"
-        android:hint="A, B..."
         android:onClick="txtEndSelection"
+        android:scrollbars="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/txtNum"
+        app:layout_constraintLeft_toRightOf="@id/txtNumF"
         app:layout_constraintRight_toLeftOf="@id/arrow"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,7 +31,7 @@
         android:id="@+id/arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="-->"
+        android:text="@string/arrow"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_weight="1"
@@ -43,12 +43,12 @@
         android:id="@+id/txtDep"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autofillHints="@string/hint_dep"
+        android:hint="@string/hint_dep"
         android:inputType="textCapCharacters"
-        android:scrollbars="horizontal"
-        android:hint="D, E, F..."
         android:onClick="txtEndSelection"
+        android:scrollbars="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/arrow"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

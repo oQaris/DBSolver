@@ -1,5 +1,7 @@
 package com.example.dbsolver.logic
 
+import com.example.dbsolver.Log
+
 fun combinations(
     arr: List<String>,
     len: Int,
@@ -38,6 +40,13 @@ fun toStr(set: Set<String>): String {
     return "{${set.joinToString(",")}}"
 }
 
+fun hasInput(rel: Relations, isLog: Boolean = true) {
+    Log.turnOn = isLog
+    Log.ln("Вы ввели:")
+    Log.ln(rel.toString("\n"))
+    Log.ln()
+}
+
 fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
     var maxLen = 0
     column.forEach {
@@ -45,17 +54,17 @@ fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set
             maxLen = it.size * 2 + 2
     }
     maxLen++
-    print(" ".padStart(maxLen))
+    Log.l(" ".padStart(maxLen))
     title.forEach {
-        print("$it  ")
+        Log.l("$it  ")
     }
-    println()
+    Log.ln()
     matrix.forEachIndexed { i, arr ->
-        print(toStr(column[i]).padEnd(maxLen))
+        Log.l(toStr(column[i]).padEnd(maxLen))
         arr.forEachIndexed { j, it ->
-            print(it.padEnd(title[j].length + 2))
+            Log.l(it.padEnd(title[j].length + 2))
         }
-        println()
+        Log.ln()
     }
-    println()
+    Log.ln()
 }
