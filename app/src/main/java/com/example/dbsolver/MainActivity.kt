@@ -1,8 +1,11 @@
 package com.example.dbsolver
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.text.Html
+import android.text.Spanned
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -57,6 +60,9 @@ class MainActivity : AppCompatActivity() {
         try {
             val rel = readRelations(fAdapter.getFDs())
             val dcmp = readDecomposition(dAdapter.getDcmp(), rel)
+            if (rel.isEmpty()) {
+                throw IllegalArgumentException("Введите функциональные зависимости!")
+            }
             Log.clear()
             hasInput(rel)
             minCover(rel, true)
@@ -68,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                 isLosslessConnection(rel, dcmp, true)
                 isFuncDepPersistence(rel, dcmp, true)
             }
-            binding.textView.text = Log.str
+            binding.textView.text = Log.toSpanned()
         } catch (e: Exception) {
             Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()
         }

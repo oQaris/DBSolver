@@ -1,26 +1,41 @@
 package com.example.dbsolver
 
+import android.os.Build
+import android.text.Html
+import android.text.Spanned
+
 object Log {
     var turnOn = true
     var str = ""
         private set
 
-    fun ln(line: String) {
+    fun ln(line: String, tag: String = "") {
         if (turnOn)
-            str += line + "\n"
+            str += if (tag.isEmpty()) "$line<br/>"
+            else "<$tag>$line</$tag><br/>"
     }
 
     fun ln() {
         if (turnOn)
-            str += "\n"
+            str += "<br/>"
     }
 
-    fun l(line: String) {
+    fun l(line: String, tag: String = "") {
         if (turnOn)
-            str += line
+            str += if (tag.isEmpty()) line
+            else "<$tag>$line</$tag>"
     }
 
     fun clear() {
         str = ""
+    }
+
+    fun toSpanned(): Spanned {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            return Html.fromHtml(str, Html.FROM_HTML_MODE_LEGACY)
+        else {
+            @Suppress("DEPRECATION")
+            return Html.fromHtml(str)
+        }
     }
 }

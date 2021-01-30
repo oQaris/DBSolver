@@ -5,25 +5,33 @@ import com.google.common.collect.HashMultiset
 
 //todo Избавиться от .toMutableSet()
 
+/*val clPrefix = "&lt;sup&gt;+&lt;/sup&gt;"
+val clPrefixIt = "&lt;sup&gt;+&lt;/sup&gt;&lt;sub&gt;S-*&lt;/sub&gt;"
+val clPrefixH = "&lt;sup&gt;+&lt;/sup&gt;&lt;sub&gt;S-H&lt;/sub&gt;"*/
+
+const val clPrefix = "<sup><small>+</small></sup>"
+const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"
+const val clPrefixH = "$clPrefix<sub><small>s-н</small></sub>"
+
 fun minCover(rel: Relations, isLog: Boolean = false): Relations {
     Log.turnOn = isLog
     var out = rel.copy()
-    Log.ln("Вычисление минимального покрытия:")
+    Log.ln("Вычисление минимального покрытия:", "b")
     Log.ln("1)")
     for ((det, v) in out.singlePairs) {
         val newMap = out.copy()
         newMap.remove(det f v)
         val cl = closure(det, newMap)
         if (cl.containsAll(v)) {
-            Log.ln("${det f v}:\t${toStr(det)}+S-* = ${toStr(cl)} э $v => S=S-{${det f v}}")
+            Log.ln("${det f v}:\t${toStr(det)}$clPrefixIt = ${toStr(cl)} э $v => S=S-{${det f v}}")
             out = newMap
         } else
-            Log.ln("${det f v}:\t${toStr(det)}+S-* = ${toStr(cl)} не э $v => S не меняется")
+            Log.ln("${det f v}:\t${toStr(det)}$clPrefixIt = ${toStr(cl)} не э $v => S не меняется")
     }
     val multiDet = out.filter { (k, _) -> k.size > 1 }
     Log.ln("2)")
     if (multiDet.isEmpty())
-        Log.ln("S не содержит ФЗ с детерминантом из нескольких атрибутов")
+        Log.ln("S не содержит ФЗ с детерминантом из нескольких атрибутов", "i")
     else for ((k, v) in multiDet) {
         k.forEach {
             val set = k.minus(setOf(it))
@@ -36,13 +44,13 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
                     else newMap[t] = u
                 }
                 out = newMap
-                Log.ln("${set f v}:\t${toStr(set)}+ = ${toStr(cl)} э ${toStr(v)} => $it удаляем из дет. ${k f v}")
+                Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} э ${toStr(v)} => $it удаляем из дет. ${k f v}")
             } else
-                Log.ln("${set f v}:\t${toStr(set)}+ = ${toStr(cl)} не э ${toStr(v)} => $it оставляем в дет. ${k f v}")
+                Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} не э ${toStr(v)} => $it оставляем в дет. ${k f v}")
         }
     }
-    Log.ln("Минимальное Покрытие:")
-    Log.ln(out.toString("\n"))
+    Log.ln("Минимальное Покрытие:", "i")
+    Log.ln(out.toString("<br/>"))
     Log.ln()
     Log.turnOn = true
     return out
@@ -50,7 +58,7 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
 
 fun allClosure(rel: Relations, isLog: Boolean = false): Relations {
     Log.turnOn = isLog
-    Log.ln("Замыкания всех наборов атрибутов:")
+    Log.ln("Замыкания всех наборов атрибутов:", "b")
     val out = Relations()
     for (i in 1..rel.allAttr.size)
         combinations(
@@ -58,7 +66,7 @@ fun allClosure(rel: Relations, isLog: Boolean = false): Relations {
         ).forEach { det ->
             val closure = closure(det, rel)
             out[det.toMutableSet()] = closure.toMutableSet()
-            Log.ln("${toStr(det)}+ = ${toStr(closure)}")
+            Log.ln("${toStr(det)}$clPrefix = ${toStr(closure)}")
         }
     Log.ln()
     Log.turnOn = true
@@ -67,7 +75,7 @@ fun allClosure(rel: Relations, isLog: Boolean = false): Relations {
 
 fun minKeys(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
     Log.turnOn = isLog
-    Log.ln("Минимальные Ключи:")
+    Log.ln("Минимальные Ключи:", "b")
     val keys = mutableSetOf<Set<String>>()
     var minLenKey = Int.MAX_VALUE
     for ((det, cl) in allClosure(rel)) {
@@ -86,7 +94,7 @@ fun minKeys(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
 
 fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
     Log.turnOn = isLog
-    Log.ln("Нетривиальные ФЗ с зависимой частью из 1 атрибута:")
+    Log.ln("Нетривиальные ФЗ с зависимой частью из 1 атрибута:", "b")
     val out = Relations()
     for ((det, cl) in allClosure(rel)) {
         cl.minus(det).forEach {
@@ -101,7 +109,8 @@ fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
 
 fun decomposition(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
     Log.turnOn = isLog
-    Log.ln("Декомпозиция до БКНФ:\nВ разработке!")
+    Log.ln("Декомпозиция до БКНФ:", "b")
+    Log.ln("В разработке!", "i")
     Log.ln()
     Log.turnOn = true
     return setOf()
@@ -109,7 +118,7 @@ fun decomposition(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
 
 fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {
     Log.turnOn = isLog
-    Log.ln("Проверка декомпозиции на свойство соединения без потерь:")
+    Log.ln("Проверка декомпозиции на свойство соединения без потерь:", "b")
     val attrIdx = rel.allAttr.toSortedSet().toList()
     val dcmpIdx = dcmp.toList()
     val matrix = Array(dcmpIdx.size) { Array(attrIdx.size) { "" } }
@@ -119,11 +128,11 @@ fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
                 matrix[i][j] = "a"
             else matrix[i][j] = "${i + 1}"
 
-    Log.ln("Исходная таблица:")
+    Log.ln("Исходная таблица:", "i")
     printMtx(matrix, attrIdx, dcmpIdx)
     var isLossConnectProperty = true
     for ((k, v) in rel.entries) {
-        Log.ln("${k f v}:")
+        Log.ln("${k f v}:", "i")
         // Logic
         var setIdxRow = mutableSetOf<Int>()
         for (i in dcmpIdx.indices)
@@ -184,17 +193,17 @@ fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
 
 fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {
     Log.turnOn = isLog
-    Log.ln("Проверка декомпозиции на свойство сохранения ФЗ:")
+    Log.ln("Проверка декомпозиции на свойство сохранения ФЗ:", "b")
     Log.ln("1.")
     val dcmpIdx = dcmp.toList()
     val crnc = Relations()
     for ((t, u) in rel) {
-        val clm = closure(t.toMutableSet(), rel).minus(t)
-        Log.l("${toStr(t)}+S-* = ${toStr(clm.toMutableSet())} => ")
+        val clm = closure(t, rel).minus(t)
+        Log.l("${toStr(t)}$clPrefixIt = ${toStr(clm)} => ")
         if (u == clm)
             Log.ln("G не меняется")
         else Log.ln("Заменяем ${t f u} на ${t f clm}")
-        crnc[t.toMutableSet()] = clm.toMutableSet()
+        crnc[t] = clm.toMutableSet()
     }
     Log.ln("УНП = {${crnc.toString("; ")}}, H = {}")
     Log.ln("2.")
@@ -226,11 +235,11 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
         Log.ln()
     }
     Log.ln("4.")
-    Log.l("Множество H ")
+    Log.l("Множество H ", "i")
     if (h.isEmpty())
-        Log.ln("пустое => сво-во сохранения ФЗ выполняется")
+        Log.ln("пустое => сво-во сохранения ФЗ выполняется", "i")
     else {
-        Log.ln("не пустое => переход к шагу 5")
+        Log.ln("не пустое => переход к шагу 5", "i")
         Log.ln("5.")
         val g = rel.copy()
         for ((t, u) in h) {
@@ -240,7 +249,7 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
         }
         var flag = true
         for ((t, u) in h.entries) {
-            Log.l("${toStr(t)}+G-H = ")
+            Log.l("${toStr(t)}$clPrefixH = ")
             val cl = closure(t, g)
             Log.l(toStr(cl))
             if (!cl.containsAll(u)) {
@@ -251,8 +260,8 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
             Log.ln(" ⊇ ${toStr(u)}")
         }
         if (flag)
-            Log.ln("=> Декомпозиция обладает св-вом сохранения ФЗ!")
-        else Log.ln(" => Декомпозиция НЕ обладает св-вом сохранения ФЗ")
+            Log.ln("=> Декомпозиция обладает св-вом сохранения ФЗ!", "i")
+        else Log.ln(" => Декомпозиция НЕ обладает св-вом сохранения ФЗ", "i")
         Log.ln()
         Log.turnOn = true
         return flag
