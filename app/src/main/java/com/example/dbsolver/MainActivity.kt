@@ -35,14 +35,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun fillListFD(): MutableList<Pair<String, String>> {
         val data = mutableListOf<Pair<String, String>>()
-        data.add("K№  n" to "{A, f1, L}")
         data.add("" to "")
         return data
     }
 
     private fun fillListDcmp(): MutableList<String> {
         val data = mutableListOf<String>()
-        data.add("K№ n A f1 L")
         data.add("")
         return data
     }
@@ -66,8 +64,10 @@ class MainActivity : AppCompatActivity() {
             minKeys(rel, true)
             nonTrivialFDs(rel, true)
             decomposition(rel, true)
-            isLosslessConnection(rel, dcmp, true)
-            isFuncDepPersistence(rel, dcmp, true)
+            if (dcmp.isNotEmpty()) {
+                isLosslessConnection(rel, dcmp, true)
+                isFuncDepPersistence(rel, dcmp, true)
+            }
             binding.textView.text = Log.str
         } catch (e: Exception) {
             Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()

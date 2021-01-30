@@ -44,6 +44,7 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
     Log.ln("Минимальное Покрытие:")
     Log.ln(out.toString("\n"))
     Log.ln()
+    Log.turnOn = true
     return out
 }
 
@@ -60,6 +61,7 @@ fun allClosure(rel: Relations, isLog: Boolean = false): Relations {
             Log.ln("${toStr(det)}+ = ${toStr(closure)}")
         }
     Log.ln()
+    Log.turnOn = true
     return out
 }
 
@@ -78,6 +80,7 @@ fun minKeys(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
     }
     keys.forEach { Log.ln(toStr(it)) }
     Log.ln()
+    Log.turnOn = true
     return keys
 }
 
@@ -92,6 +95,7 @@ fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
         }
     }
     Log.ln()
+    Log.turnOn = true
     return out
 }
 
@@ -99,6 +103,7 @@ fun decomposition(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
     Log.turnOn = isLog
     Log.ln("Декомпозиция до БКНФ:\nВ разработке!")
     Log.ln()
+    Log.turnOn = true
     return setOf()
 }
 
@@ -166,12 +171,14 @@ fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
             if (isLossConnectProperty && matrix[i][0] == "a") {
                 Log.ln("Строка ${i + 1} полностью состоит из 'a' => декомпозиция обладает свойством соединения без потерь!")
                 Log.ln()
+                Log.turnOn = true
                 return true
             }
         }
     }
     Log.ln("Т.к. были перебраны все ФЗ, а строка, полностью состоящая из A так и не появилась, то св-во соединения без потерь НЕ выполняется!")
     Log.ln()
+    Log.turnOn = true
     return false
 }
 
@@ -247,7 +254,10 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
             Log.ln("=> Декомпозиция обладает св-вом сохранения ФЗ!")
         else Log.ln(" => Декомпозиция НЕ обладает св-вом сохранения ФЗ")
         Log.ln()
+        Log.turnOn = true
         return flag
     }
+    Log.ln()
+    Log.turnOn = true
     return true
 }
