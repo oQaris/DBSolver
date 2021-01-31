@@ -4,20 +4,24 @@
 
     <Transition
         motion:constraintSetEnd="@id/end"
-        motion:constraintSetStart="@id/start"
-        motion:duration="500">
+        motion:constraintSetStart="@id/start">
+        <!--dragScale - чем больше, тем меньше усилий надо для смахивания-->
+        <!--maxAcceleration - чем больше, тем быстрее-->
         <OnSwipe
             motion:dragDirection="dragLeft"
+            motion:dragScale="10"
+            motion:maxAcceleration="100"
             motion:onTouchUp="autoComplete"
             motion:touchAnchorSide="left" />
     </Transition>
 
     <Transition
         motion:constraintSetEnd="@id/start"
-        motion:constraintSetStart="@id/end"
-        motion:duration="500">
+        motion:constraintSetStart="@id/end">
         <OnSwipe
             motion:dragDirection="dragRight"
+            motion:dragScale="10"
+            motion:maxAcceleration="100"
             motion:onTouchUp="autoComplete"
             motion:touchAnchorSide="right" />
     </Transition>
@@ -71,7 +75,7 @@
             android:layout_height="0dp"
             motion:layout_constraintBottom_toBottomOf="@id/guideline"
             motion:layout_constraintLeft_toLeftOf="parent"
-            motion:layout_constraintTop_toTopOf="parent" >
+            motion:layout_constraintTop_toTopOf="parent">
             <CustomAttribute
                 motion:attributeName="backgroundColor"
                 motion:customColorValue="@color/orange" />

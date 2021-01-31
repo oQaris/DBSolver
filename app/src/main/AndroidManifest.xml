@@ -18,5 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OptionsActivity"
+            android:theme="@style/Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.CHOOSER" />
+                <category android:name="android.intent.category.INFO" />
+            </intent-filter>
+        </activity>
     </application>
+
 </manifest>

@@ -2,6 +2,12 @@ package com.example.dbsolver.logic
 
 import com.example.dbsolver.Log
 
+const val arrow = "<sup>→</sup>"
+const val impl = "<sup>⇒</sup>"
+const val clPrefix = "<sup><small>+</small></sup>"
+const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"
+const val clPrefixH = "$clPrefix<sub><small>s-н</small></sub>"
+
 fun combinations(
     arr: List<String>,
     len: Int,
@@ -34,37 +40,31 @@ fun closure(attributeSet: Set<String>, funcDeps: Relations): Set<String> {
     return closure
 }
 
-fun toStr(set: Set<String>): String {
-    if (set.size == 1)
+fun toStr(set: Set<String>, anyInBrackets: Boolean = false): String {
+    if (set.size == 1 && !anyInBrackets)
         return set.first()
     return "{${set.joinToString(",")}}"
 }
 
 fun hasInput(rel: Relations, isLog: Boolean = true) {
     Log.turnOn = isLog
-    Log.ln("Вы ввели:")
-    Log.ln(rel.toString("\n"))
+    Log.ln("Вы ввели:", "b")
+    Log.ln(rel.toString("<br/>"))
     Log.ln()
 }
 
 fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
-    var maxLen = 0
-    column.forEach {
-        if (it.toString().length > maxLen)
-            maxLen = it.size * 2 + 2
-    }
-    maxLen++
-    Log.l(" ".padStart(maxLen))
+    Log.l("<table border=\"1\" width=\"100%\" cellpadding=\"5\">")
+    Log.l("<tr><th></th>")
     title.forEach {
-        Log.l("$it  ")
+        Log.l(it, "th")
     }
-    Log.ln()
+    Log.l("</tr>")
     matrix.forEachIndexed { i, arr ->
-        Log.l(toStr(column[i]).padEnd(maxLen))
-        arr.forEachIndexed { j, it ->
-            Log.l(it.padEnd(title[j].length + 2))
-        }
-        Log.ln()
+        Log.l("<tr>")
+        Log.l(toStr(column[i]), "td")
+        arr.forEach { Log.l(it, "td") }
+        Log.l("</tr>")
     }
-    Log.ln()
+    Log.l("</table>")
 }

@@ -3,7 +3,7 @@
     <string name="solve">Вычислить</string>
     <string name="hint_det">A, B...</string>
     <string name="hint_dep">D, E, F...</string>
-    <string name="arrow">—></string>
+    <string name="arrow"><sup>→</sup></string>
     <string name="hint_dcmp">Декомпозиция</string>
     <string name="num_filler">1)</string>
 </resources>

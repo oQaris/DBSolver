@@ -1,7 +1,7 @@
 package com.example.dbsolver.logic
 
 data class FD(val det: Set<String>, val dep: Set<String>) {
-    override fun toString() = "${toStr(det)}–>${toStr(dep)}"
+    override fun toString() = "${toStr(det)}$arrow${toStr(dep)}"
 }
 
 infix fun String.f(attr: String) = FD(setOf(this), setOf(attr))
@@ -46,17 +46,13 @@ class Relations(private val funcDep: MutableMap<MutableSet<String>, MutableSet<S
         return out
     }
 
-    fun toString(separator: String): String {
-        var out = ""
-        funcDep.forEach { (t, u) ->
-            out += "${setToString(t)}–>${setToString(u)}$separator"
-        }
-        return out.dropLast(separator.length)
-    }
-
-    private fun setToString(set: MutableSet<String>): String {
-        if (set.size == 1)
-            return set.first()
-        return "{${set.joinToString(",")}}"
+    fun toString(separator: String, isSinglePairs: Boolean = false): String {
+        val outList = mutableListOf<String>()
+        if (isSinglePairs)
+            for ((t, attr) in singlePairs)
+                outList.add("${t f attr}")
+        else for ((t, u) in funcDep)
+            outList.add("${t f u}")
+        return outList.joinToString(separator)
     }
 }

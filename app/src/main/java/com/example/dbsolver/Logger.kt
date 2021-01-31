@@ -20,10 +20,14 @@ object Log {
             str += "<br/>"
     }
 
-    fun l(line: String, tag: String = "") {
+    fun l(line: String, vararg tag: String) {
         if (turnOn)
-            str += if (tag.isEmpty()) line
-            else "<$tag>$line</$tag>"
+            if (tag.isEmpty()) str += line
+            else {
+                tag.reversed().forEach { str += "<$it>" }
+                str += line
+                tag.forEach { str += "</$it>" }
+            }
     }
 
     fun clear() {

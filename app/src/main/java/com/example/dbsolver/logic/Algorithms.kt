@@ -5,14 +5,6 @@ import com.google.common.collect.HashMultiset
 
 //todo Избавиться от .toMutableSet()
 
-/*val clPrefix = "&lt;sup&gt;+&lt;/sup&gt;"
-val clPrefixIt = "&lt;sup&gt;+&lt;/sup&gt;&lt;sub&gt;S-*&lt;/sub&gt;"
-val clPrefixH = "&lt;sup&gt;+&lt;/sup&gt;&lt;sub&gt;S-H&lt;/sub&gt;"*/
-
-const val clPrefix = "<sup><small>+</small></sup>"
-const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"
-const val clPrefixH = "$clPrefix<sub><small>s-н</small></sub>"
-
 fun minCover(rel: Relations, isLog: Boolean = false): Relations {
     Log.turnOn = isLog
     var out = rel.copy()
@@ -23,10 +15,10 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
         newMap.remove(det f v)
         val cl = closure(det, newMap)
         if (cl.containsAll(v)) {
-            Log.ln("${det f v}:\t${toStr(det)}$clPrefixIt = ${toStr(cl)} э $v => S=S-{${det f v}}")
+            Log.ln("${det f v}:\t${toStr(det)}$clPrefixIt = ${toStr(cl)} э ${toStr(v)} $impl S=S-{${det f v}}")
             out = newMap
         } else
-            Log.ln("${det f v}:\t${toStr(det)}$clPrefixIt = ${toStr(cl)} не э $v => S не меняется")
+            Log.ln("${det f v}:\t${toStr(det)}$clPrefixIt = ${toStr(cl)} не э ${toStr(v)} $impl S не меняется")
     }
     val multiDet = out.filter { (k, _) -> k.size > 1 }
     Log.ln("2)")
@@ -44,9 +36,9 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
                     else newMap[t] = u
                 }
                 out = newMap
-                Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} э ${toStr(v)} => $it удаляем из дет. ${k f v}")
+                Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} э ${toStr(v)} $impl $it удаляем из дет. ${k f v}")
             } else
-                Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} не э ${toStr(v)} => $it оставляем в дет. ${k f v}")
+                Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} не э ${toStr(v)} $impl $it оставляем в дет. ${k f v}")
         }
     }
     Log.ln("Минимальное Покрытие:", "i")
@@ -178,7 +170,7 @@ fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
                 if (matrix[i][j - 1] != matrix[i][j])
                     isLossConnectProperty = false
             if (isLossConnectProperty && matrix[i][0] == "a") {
-                Log.ln("Строка ${i + 1} полностью состоит из 'a' => декомпозиция обладает свойством соединения без потерь!")
+                Log.ln("Строка ${i + 1} полностью состоит из 'a' $impl декомпозиция обладает свойством соединения без потерь!")
                 Log.ln()
                 Log.turnOn = true
                 return true
@@ -199,7 +191,7 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
     val crnc = Relations()
     for ((t, u) in rel) {
         val clm = closure(t, rel).minus(t)
-        Log.l("${toStr(t)}$clPrefixIt = ${toStr(clm)} => ")
+        Log.l("${toStr(t)}$clPrefixIt = ${toStr(clm)} $impl ")
         if (u == clm)
             Log.ln("G не меняется")
         else Log.ln("Заменяем ${t f u} на ${t f clm}")
@@ -207,13 +199,7 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
     }
     Log.ln("УНП = {${crnc.toString("; ")}}, H = {}")
     Log.ln("2.")
-    Log.l("G = ")
-    val listOut = mutableListOf<String>()
-    for ((t, attr) in crnc.singlePairs) {
-        listOut.add("${t f attr}")
-    }
-    Log.l("{${listOut.joinToString("; ")}}")
-    Log.ln()
+    Log.ln("G = {${crnc.toString("; ", isSinglePairs = true)}}")
     Log.ln("3.")
     val h = Relations()
     for ((t, attr) in crnc.singlePairs) {
@@ -230,16 +216,17 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
         }
         if (!flag) {
             h.getOrPut(t.toMutableSet()) { mutableSetOf() }.add(attr.first())
-            Log.l("=>\tH += {${t f attr}}")
+            Log.l("$impl\tH += {${t f attr}}")
         }
         Log.ln()
     }
     Log.ln("4.")
     Log.l("Множество H ", "i")
+    var flag = true
     if (h.isEmpty())
-        Log.ln("пустое => сво-во сохранения ФЗ выполняется", "i")
+        Log.ln("пустое $impl св-во сохранения ФЗ выполняется", "i")
     else {
-        Log.ln("не пустое => переход к шагу 5", "i")
+        Log.ln("не пустое $impl переход к шагу 5", "i")
         Log.ln("5.")
         val g = rel.copy()
         for ((t, u) in h) {
@@ -247,7 +234,6 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
             if (g[t]?.size == 0)
                 g.remove(t)
         }
-        var flag = true
         for ((t, u) in h.entries) {
             Log.l("${toStr(t)}$clPrefixH = ")
             val cl = closure(t, g)
@@ -260,13 +246,10 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
             Log.ln(" ⊇ ${toStr(u)}")
         }
         if (flag)
-            Log.ln("=> Декомпозиция обладает св-вом сохранения ФЗ!", "i")
-        else Log.ln(" => Декомпозиция НЕ обладает св-вом сохранения ФЗ", "i")
-        Log.ln()
-        Log.turnOn = true
-        return flag
+            Log.ln("$impl Декомпозиция обладает св-вом сохранения ФЗ!", "i")
+        else Log.ln(" $impl Декомпозиция НЕ обладает св-вом сохранения ФЗ", "i")
     }
     Log.ln()
     Log.turnOn = true
-    return true
+    return flag
 }
