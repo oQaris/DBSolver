@@ -47,10 +47,11 @@ fun toStr(set: Set<String>, anyInBrackets: Boolean = false): String {
 }
 
 fun hasInput(rel: Relations, isLog: Boolean = true) {
-    Log.turnOn = isLog
+    Log.setLogging(isLog)
     Log.ln("Вы ввели:", "b")
     Log.ln(rel.toString("<br/>"))
     Log.ln()
+    Log.restoreLogging()
 }
 
 fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {

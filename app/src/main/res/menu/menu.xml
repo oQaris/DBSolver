@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_solve"
+        android:onClick="btnSolveClick"
+        android:title="Вычислить"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_history"
+        android:onClick="btnHistoryClick"
+        android:title="История"
+        app:showAsAction="ifRoom" />
+
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/action_min_cover"
+            android:title="Мин. Покрытие"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_closure"
+            android:title="Замыкания"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_keys"
+            android:title="Ключи"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_non_trivial"
+            android:title="Нетрив. ФЗ с 1 атр."
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_decomposition"
+            android:title="Декомпозиция"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_lossless_connection"
+            android:title="Св-во соединения без потерь"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_persistence"
+            android:title="Св-во сохранения ФЗ"
+            app:showAsAction="never" />
+    </group>
+</menu>

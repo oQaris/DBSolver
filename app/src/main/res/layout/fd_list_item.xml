@@ -20,7 +20,6 @@
         android:autofillHints="@string/hint_det"
         android:hint="@string/hint_det"
         android:inputType="textCapCharacters"
-        android:onClick="txtEndSelection"
         android:scrollbars="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/txtNumF"
