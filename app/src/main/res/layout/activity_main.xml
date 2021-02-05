@@ -12,6 +12,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/round_light"
         app:layoutDescription="@xml/activity_main_scene">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -27,7 +28,7 @@
             android:id="@+id/line"
             android:layout_width="30dp"
             android:layout_height="0dp"
-            android:background="@drawable/rounded_corners"
+            android:background="@drawable/round_dark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/dcmpRecyclerView"
             app:layout_constraintStart_toEndOf="@id/fdRecyclerView"
@@ -45,7 +46,7 @@
     </androidx.constraintlayout.motion.widget.MotionLayout>
 
     <ScrollView
-        android:id="@+id/resultScroll"
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="5dp"
@@ -55,10 +56,9 @@
         app:layout_constraintTop_toBottomOf="@id/linearLayout">
 
         <WebView
-            android:id="@+id/textView"
+            android:id="@+id/txtResult"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollHorizontally="true" />
+            android:layout_height="wrap_content" />
     </ScrollView>
 
 </androidx.constraintlayout.motion.widget.MotionLayout>

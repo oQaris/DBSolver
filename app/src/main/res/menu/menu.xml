@@ -3,13 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_solve"
         android:onClick="btnSolveClick"
         android:title="Вычислить"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_history"
         android:onClick="btnHistoryClick"
         android:title="История"
         app:showAsAction="ifRoom" />

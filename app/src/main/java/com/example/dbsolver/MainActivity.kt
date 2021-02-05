@@ -15,15 +15,12 @@ import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dbsolver.databinding.ActivityMainBinding
 import com.example.dbsolver.logic.*
-import com.google.android.material.bottomnavigation.BottomNavigationView
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val h = Handler()
     private lateinit var fAdapter: FDRecyclerAdapter
     private lateinit var dAdapter: DcmpRecyclerAdapter
-    private lateinit var bottomNavigationView: BottomNavigationView
 
     /*private var isMinCover = true
     private var isClosure = true
@@ -142,7 +139,7 @@ class MainActivity : AppCompatActivity() {
                 if (menuArr[6])
                     isFuncDepPersistence(rel, dcmp, true)
             }
-            binding.textView.loadDataWithBaseURL(
+            binding.txtResult.loadDataWithBaseURL(
                 "file:///android_asset/.",
                 Log.toString(),
                 "text/html",

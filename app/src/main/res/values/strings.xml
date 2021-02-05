@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">DBSolver</string>
-    <string name="solve">Вычислить</string>
     <string name="hint_det">A, B...</string>
     <string name="hint_dep">D, E, F...</string>
     <string name="arrow"><sup>→</sup></string>

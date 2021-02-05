@@ -6,9 +6,9 @@
 
     <TextView
         android:id="@+id/txtNumF"
-        android:text="@string/num_filler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/num_filler"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

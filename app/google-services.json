@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1045846206996",
+    "project_id": "dbsolver-2601d",
+    "storage_bucket": "dbsolver-2601d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1045846206996:android:a77099e93c770230a65501",
+        "android_client_info": {
+          "package_name": "com.pryanik.dbsolver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1045846206996-aj4k9l1122qai8fbprslalihcjfn2egt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pryanik.dbsolver",
+            "certificate_hash": "91c7605d9bf6d68f448e4a841cf701e7c0d4ef79"
+          }
+        },
+        {
+          "client_id": "1045846206996-m7us7togct5cnk021v0gg982q0id5ouv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN_yM4713097xMTE_PyWvkblqi-MFw7cM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1045846206996-m7us7togct5cnk021v0gg982q0id5ouv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

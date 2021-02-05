@@ -34,15 +34,15 @@
             android:layout_marginLeft="5dp"
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintLeft_toLeftOf="parent"
-            motion:layout_constraintTop_toTopOf="parent"
-            motion:layout_constraintRight_toLeftOf="@id/line"/>
+            motion:layout_constraintRight_toLeftOf="@id/line"
+            motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
             android:id="@id/line"
             android:layout_width="30dp"
             android:layout_height="0dp"
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintRight_toRightOf="parent"
-            motion:layout_constraintTop_toTopOf="parent" >
+            motion:layout_constraintTop_toTopOf="parent">
             <!--<CustomAttribute
                 motion:attributeName="backgroundColor"
                 motion:customColorValue="@color/gray2" />-->
@@ -72,7 +72,7 @@
             android:layout_height="0dp"
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintLeft_toLeftOf="parent"
-            motion:layout_constraintTop_toTopOf="parent" >
+            motion:layout_constraintTop_toTopOf="parent">
             <!--<CustomAttribute
                 motion:attributeName="backgroundColor"
                 motion:customColorValue="@color/gray" />-->
@@ -83,8 +83,8 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintLeft_toRightOf="@id/line"
             motion:layout_constraintRight_toRightOf="parent"
-            motion:layout_constraintTop_toTopOf="parent"
-            motion:layout_constraintLeft_toRightOf="@id/line"/>
+            motion:layout_constraintTop_toTopOf="parent" />
     </ConstraintSet>
 </MotionScene>

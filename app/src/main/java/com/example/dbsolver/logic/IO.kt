@@ -1,7 +1,6 @@
 package com.example.dbsolver.logic
 
 import android.os.Build
-import java.io.File
 
 val delimiter = "[\\p{P}|\\s]+".toRegex()
 
