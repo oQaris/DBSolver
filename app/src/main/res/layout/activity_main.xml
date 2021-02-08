@@ -24,11 +24,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <View
+        <TextView
             android:id="@+id/line"
             android:layout_width="30dp"
             android:layout_height="0dp"
             android:background="@drawable/round_dark"
+            android:gravity="center_vertical|center_horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/dcmpRecyclerView"
             app:layout_constraintStart_toEndOf="@id/fdRecyclerView"
@@ -42,6 +43,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnGenDcmp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/oval_button"
+            android:onClick="btnGenerateDecompositionClick"
+            android:text="@string/gen_dcmp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 

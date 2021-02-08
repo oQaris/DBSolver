@@ -147,6 +147,7 @@ fun decomposition(rel: Relations, isLog: Boolean = false): List<Set<String>> {
         Log.ln("R${idx + 1}${toStr(set)}")
     }
     Log.ln("• НФБК - В разработке!", "i")
+    Log.ln()
     Log.restoreLogging()
     return decomp
 }
@@ -247,25 +248,23 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
     val h = Relations()
     for ((t, attr) in crnc.singlePairs) {
         Log.l("${t f attr}:\t")
-        var flag = false
-        for (i in dcmpIdx.indices) {
-            val un = t.union(attr)
-            Log.l("${toStr(un)} ")
+        var setIdx = -1
+        val un = t.union(attr)
+        for (i in dcmpIdx.indices)
             if (dcmpIdx[i].containsAll(un)) {
-                Log.l("⊆ R${i + 1} ")
-                flag = true
+                setIdx = i + 1
                 break
-            } else Log.l("не ⊆ R${i + 1}, ")
-        }
-        if (!flag) {
+            }
+        Log.l(toStr(un))
+        if (setIdx == -1) {
             h.getOrPut(t.toMutableSet()) { mutableSetOf() }.add(attr.first())
-            Log.l("$impl\tH += {${t f attr}}")
-        }
+            Log.l(" не ⊆ R1…R${dcmpIdx.size} $impl\tH += {${t f attr}}")
+        } else Log.l(" ⊆ R${setIdx} ")
         Log.ln()
     }
     Log.ln("4.")
     Log.l("Множество H ", "i")
-    var flag = true
+    var isPersistence = true
     if (h.isEmpty())
         Log.ln("пустое $impl св-во сохранения ФЗ выполняется", "i")
     else {
@@ -282,17 +281,17 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
             val cl = closure(t, g)
             Log.l(toStr(cl))
             if (!cl.containsAll(u)) {
-                flag = false
+                isPersistence = false
                 Log.l(" не ⊇ ${toStr(u)}")
                 break
             }
             Log.ln(" ⊇ ${toStr(u)}")
         }
-        if (flag)
+        if (isPersistence)
             Log.ln("$impl Декомпозиция обладает св-вом сохранения ФЗ!", "i")
         else Log.ln(" $impl Декомпозиция НЕ обладает св-вом сохранения ФЗ", "i")
     }
     Log.ln()
     Log.restoreLogging()
-    return flag
+    return isPersistence
 }

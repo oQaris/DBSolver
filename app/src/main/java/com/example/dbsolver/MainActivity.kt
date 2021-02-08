@@ -1,7 +1,9 @@
 package com.example.dbsolver
 
+import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.Menu
@@ -15,9 +17,10 @@ import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dbsolver.databinding.ActivityMainBinding
 import com.example.dbsolver.logic.*
+import com.google.firebase.perf.metrics.AddTrace
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var bind: ActivityMainBinding
     private val h = Handler()
     private lateinit var fAdapter: FDRecyclerAdapter
     private lateinit var dAdapter: DcmpRecyclerAdapter
@@ -31,22 +34,23 @@ class MainActivity : AppCompatActivity() {
     private var isPersistence = true*/
     private val menuArr = Array(7) { true }
 
+    @AddTrace(name = "onCreateTrace", enabled = true)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
+        bind = ActivityMainBinding.inflate(layoutInflater)
+        val view = bind.root
         setContentView(view)
 
-        fAdapter = FDRecyclerAdapter(fillListFD(), h, binding.fdRecyclerView)
-        dAdapter = DcmpRecyclerAdapter(fillListDcmp(), h, binding.dcmpRecyclerView)
+        fAdapter = FDRecyclerAdapter(fillListFD(), h, bind.fdRecyclerView)
+        dAdapter = DcmpRecyclerAdapter(fillListDcmp(), h, bind.dcmpRecyclerView)
 
-        binding.fdRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.dcmpRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.fdRecyclerView.adapter = fAdapter
-        binding.dcmpRecyclerView.adapter = dAdapter
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.line.clipToOutline = true
-        }
+        bind.fdRecyclerView.layoutManager = LinearLayoutManager(this)
+        bind.dcmpRecyclerView.layoutManager = LinearLayoutManager(this)
+        bind.fdRecyclerView.adapter = fAdapter
+        bind.dcmpRecyclerView.adapter = dAdapter
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            bind.line.clipToOutline = true
+        }*/
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -56,42 +60,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val i: Int
-        when (item.itemId) {
-            R.id.action_min_cover -> {
-                i = 0
-            }
-            R.id.action_closure -> {
-                i = 1
-            }
-            R.id.action_keys -> {
-                i = 2
-            }
-            R.id.action_non_trivial -> {
-                i = 3
-            }
-            R.id.action_decomposition -> {
-                i = 4
-            }
-            R.id.action_lossless_connection -> {
-                i = 5
-            }
-            R.id.action_persistence -> {
-                i = 6
-            }
+        val idx = when (item.itemId) {
+            R.id.action_min_cover -> 0
+            R.id.action_closure -> 1
+            R.id.action_keys -> 2
+            R.id.action_non_trivial -> 3
+            R.id.action_decomposition -> 4
+            R.id.action_lossless_connection -> 5
+            R.id.action_persistence -> 6
             else -> return super.onOptionsItemSelected(item)
         }
         item.isChecked = !item.isChecked
-        menuArr[i] = item.isChecked
+        menuArr[idx] = item.isChecked
         return true
     }
 
     private fun fillListFD(): MutableList<Pair<String, String>> {
         val data = mutableListOf<Pair<String, String>>()
-        data.add("A" to "C B")
+        /*data.add("A" to "C B")
         data.add("C" to "D E")
         data.add("F" to "I")
-        data.add("A F" to "G H")
+        data.add("A F" to "G H")*/
         data.add("" to "")
         return data
     }
@@ -108,9 +97,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnHistoryClick(v: MenuItem) {
-        Toast.makeText(this, "В разработке!", Toast.LENGTH_SHORT).show()
+        startActivity(Intent(this, HistoryActivity::class.java))
     }
 
+    @AddTrace(name = "btnSolveTrace", enabled = true)
     fun btnSolveClick(v: MenuItem) {
         // Скрываем клавиатуру
         (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
@@ -118,12 +108,23 @@ class MainActivity : AppCompatActivity() {
         try {
             val rel = readRelations(fAdapter.getFDs())
             val dcmp = readDecomposition(dAdapter.getDcmp(), rel)
-            if (rel.isEmpty()) {
+            if (rel.isEmpty())
                 throw IllegalArgumentException("Введите функциональные зависимости!")
-            }
             Log.clear()
             hasInput(rel)
-            if (menuArr[0])
+            for (i in menuArr.indices) {
+                if (menuArr[i])
+                    when (i) {
+                        0 -> minCover(rel, true)
+                        1 -> allClosure(rel, true)
+                        2 -> minKeys(rel, true)
+                        3 -> nonTrivialFDs(rel, true)
+                        4 -> decomposition(rel, true)
+                        5 -> if (dcmp.isNotEmpty()) isLosslessConnection(rel, dcmp, true)
+                        6 -> if (dcmp.isNotEmpty()) isFuncDepPersistence(rel, dcmp, true)
+                    }
+            }
+            /*if (menuArr[0])
                 minCover(rel, true)
             if (menuArr[1])
                 allClosure(rel, true)
@@ -138,16 +139,37 @@ class MainActivity : AppCompatActivity() {
                     isLosslessConnection(rel, dcmp, true)
                 if (menuArr[6])
                     isFuncDepPersistence(rel, dcmp, true)
-            }
-            binding.txtResult.loadDataWithBaseURL(
-                "file:///android_asset/.",
-                Log.toString(),
-                "text/html",
-                "UTF-8",
-                null
-            )
+            }*/
+            bind.txtResult.loadDataWithBaseURL(null, Log.toString(), null, null, null)
         } catch (e: Exception) {
             Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun btnGenerateDecompositionClick(v: View) {
+        if (dAdapter.getDcmp().isNotEmpty()) {
+            AlertDialog.Builder(this)
+                .setCancelable(true)
+                .setTitle("Сгенерировать декомпозицию?")
+                .setMessage("Введённая декомпозици заменится на сгенерированную. Продолжить?")
+                .setPositiveButton("Да") { _: DialogInterface?, _: Int ->
+                    changeDecomposition()
+                }
+                .setNegativeButton("Нет") { _, _ -> }
+                .create()
+                .show()
+        } else {
+            changeDecomposition()
+            Toast.makeText(this, "Декомпозиция сгенерирована!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun changeDecomposition() {
+        dAdapter.values.clear()
+        dAdapter.values.addAll(decomposition(readRelations(fAdapter.getFDs()))
+            .map { set -> set.joinToString(", ") })
+        dAdapter.values.add("")
+        dAdapter.notifyDataSetChanged()
+        //notifyItemInserted(position)
     }
 }

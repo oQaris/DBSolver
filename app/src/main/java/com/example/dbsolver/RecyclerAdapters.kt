@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.math.min
 
 class FDRecyclerAdapter(
     private val values: MutableList<Pair<String, String>>,
@@ -104,7 +105,7 @@ class FDRecyclerAdapter(
 }
 
 class DcmpRecyclerAdapter(
-    private val values: MutableList<String>,
+    var values: MutableList<String>,
     private val h: Handler,
     private val rv: RecyclerView
 ) : RecyclerView.Adapter<DcmpRecyclerAdapter.DcmpViewHolder>() {
@@ -165,5 +166,31 @@ class DcmpRecyclerAdapter(
             h.post(::notifyDataSetChanged)
             h.post { rv.smoothScrollToPosition(itemCount) }
         }
+    }
+}
+
+class HistoryRecyclerAdapter(
+    private val FDs: List<String>,
+    private val Dcmps: List<String>
+) : RecyclerView.Adapter<HistoryRecyclerAdapter.HistoryViewHolder>() {
+
+    override fun getItemCount() = min(FDs.size, Dcmps.size)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
+        val itemView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.history_list_item, parent, false)
+        return HistoryViewHolder(itemView)
+    }
+
+    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
+        holder.txtFD.text = FDs[position]
+        holder.txtDcmp.text = Dcmps[position]
+        holder.txtDate.text = "20.02.2021"
+    }
+
+    inner class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val txtFD: TextView = itemView.findViewById(R.id.txtHistoryFD)
+        val txtDcmp: TextView = itemView.findViewById(R.id.txtHistoryDcmp)
+        val txtDate: TextView = itemView.findViewById(R.id.txtHistoryDate)
     }
 }

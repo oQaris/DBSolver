@@ -13,6 +13,12 @@
             motion:maxAcceleration="100"
             motion:onTouchUp="autoComplete"
             motion:touchAnchorSide="left" />
+        <KeyFrameSet>
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="10"
+                motion:motionTarget="@id/btnGenDcmp" />
+        </KeyFrameSet>
     </Transition>
 
     <Transition
@@ -24,6 +30,12 @@
             motion:maxAcceleration="100"
             motion:onTouchUp="autoComplete"
             motion:touchAnchorSide="right" />
+        <KeyFrameSet>
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="90"
+                motion:motionTarget="@id/btnGenDcmp" />
+        </KeyFrameSet>
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
@@ -43,9 +55,9 @@
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintRight_toRightOf="parent"
             motion:layout_constraintTop_toTopOf="parent">
-            <!--<CustomAttribute
-                motion:attributeName="backgroundColor"
-                motion:customColorValue="@color/gray2" />-->
+            <CustomAttribute
+                motion:attributeName="text"
+                motion:customStringValue="◀" />
         </Constraint>
         <Constraint
             android:id="@id/dcmpRecyclerView"
@@ -55,6 +67,16 @@
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintLeft_toRightOf="@id/line"
             motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@id/btnGenDcmp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/oval_button"
+            android:visibility="invisible"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintRight_toRightOf="parent" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -73,9 +95,9 @@
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintLeft_toLeftOf="parent"
             motion:layout_constraintTop_toTopOf="parent">
-            <!--<CustomAttribute
-                motion:attributeName="backgroundColor"
-                motion:customColorValue="@color/gray" />-->
+            <CustomAttribute
+                motion:attributeName="text"
+                motion:customStringValue="▶" />
         </Constraint>
         <Constraint
             android:id="@id/dcmpRecyclerView"
@@ -86,5 +108,15 @@
             motion:layout_constraintLeft_toRightOf="@id/line"
             motion:layout_constraintRight_toRightOf="parent"
             motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@id/btnGenDcmp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/oval_button"
+            android:visibility="visible"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintRight_toRightOf="parent" />
     </ConstraintSet>
 </MotionScene>

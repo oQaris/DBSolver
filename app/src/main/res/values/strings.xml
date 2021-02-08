@@ -5,4 +5,5 @@
     <string name="arrow"><sup>→</sup></string>
     <string name="hint_dcmp">Декомпозиция</string>
     <string name="num_filler">1)</string>
+    <string name="gen_dcmp">+</string>
 </resources>

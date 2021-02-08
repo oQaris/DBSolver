@@ -8,6 +8,9 @@ const val clPrefix = "<sup><small>+</small></sup>"
 const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"
 const val clPrefixH = "$clPrefix<sub><small>s-н</small></sub>"
 
+fun String.sup() = "<sup><small>$this</small></sup>"
+fun String.inf() = "<sub><small>$this</small></sub>"
+
 fun combinations(
     arr: List<String>,
     len: Int,
