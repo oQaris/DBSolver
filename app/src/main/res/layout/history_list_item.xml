@@ -8,8 +8,9 @@
 
     <TextView
         android:id="@+id/txtHistoryFD"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
         android:text="Функ. зависимости"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,8 +19,9 @@
 
     <TextView
         android:id="@+id/txtHistoryDcmp"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:gravity="center_horizontal"
         android:text="Декомпозиция"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +31,7 @@
 
     <TextView
         android:id="@+id/txtHistoryDate"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:text="Дата\nсохранения"
         app:layout_constraintBottom_toBottomOf="parent"

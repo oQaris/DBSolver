@@ -38,16 +38,26 @@ class MainActivity : AppCompatActivity() {
         val view = bind.root
         setContentView(view)
 
-        fAdapter = FDRecyclerAdapter(fillListFD(), h, bind.fdRecyclerView)
-        dAdapter = DcmpRecyclerAdapter(fillListDcmp(), h, bind.dcmpRecyclerView)
+        val arguments = intent.extras
+        fAdapter = FDRecyclerAdapter(fillListFD(arguments), h, bind.fdRecyclerView)
+        dAdapter = DcmpRecyclerAdapter(fillListDcmp(arguments), h, bind.dcmpRecyclerView)
 
         bind.fdRecyclerView.layoutManager = LinearLayoutManager(this)
         bind.dcmpRecyclerView.layoutManager = LinearLayoutManager(this)
         bind.fdRecyclerView.adapter = fAdapter
         bind.dcmpRecyclerView.adapter = dAdapter
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            bind.line.clipToOutline = true
-        }*/
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val arguments = intent?.extras
+        fAdapter.values.clear()
+        fAdapter.values.addAll(fillListFD(arguments))
+        fAdapter.notifyDataSetChanged()
+        dAdapter.values.clear()
+        dAdapter.values.addAll(fillListDcmp(arguments))
+        dAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -72,8 +82,10 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun fillListFD(): MutableList<Pair<String, String>> {
+    private fun fillListFD(bundle: Bundle?): MutableList<Pair<String, String>> {
         val data = mutableListOf<Pair<String, String>>()
+        if (bundle != null)
+            bundle.getString("fds")?.let { parsePairs(it) }?.let { data.addAll(it) }
         //todo убрать в продакшине
         /*data.add("A" to "C B")
         data.add("C" to "D E")
@@ -83,8 +95,10 @@ class MainActivity : AppCompatActivity() {
         return data
     }
 
-    private fun fillListDcmp(): MutableList<String> {
+    private fun fillListDcmp(bundle: Bundle?): MutableList<String> {
         val data = mutableListOf<String>()
+        if (bundle != null)
+            bundle.getString("dcmps")?.let { parseDcompStr(it) }?.let { data.addAll(it) }
         data.add("")
         return data
     }
@@ -107,8 +121,7 @@ class MainActivity : AppCompatActivity() {
         try {
             val rel = parseRelations(fAdapter.getFDs())
             val dcmp = parseDecomposition(dAdapter.getDcmp(), rel)
-            if (rel.isEmpty())
-                throw IllegalArgumentException("Введите функциональные зависимости!")
+            require(rel.isNotEmpty()) { "Введите функциональные зависимости!" }
             Log.clear()
             hasInput(rel)
             for (i in menuArr.indices) {
@@ -166,8 +179,7 @@ class MainActivity : AppCompatActivity() {
     private fun changeDecomposition() {
         dAdapter.values.clear()
         val rel = parseRelations(fAdapter.getFDs())
-        if (rel.isEmpty())
-            throw IllegalArgumentException("Введите функциональные зависимости!")
+        require(rel.isNotEmpty()) { "Введите функциональные зависимости!" }
         dAdapter.values.addAll(decomposition(rel)
             .map { set -> set.joinToString(", ") })
         dAdapter.values.add("")

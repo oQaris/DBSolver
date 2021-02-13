@@ -11,7 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DBSolver">
 
-        <activity android:name="com.pryanik.dbsolver.HistoryActivity">
+        <activity
+            android:name="com.pryanik.dbsolver.HistoryActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.CHOOSER" />
                 <category android:name="android.intent.category.INFO" />
@@ -20,6 +22,7 @@
 
         <activity
             android:name="com.pryanik.dbsolver.MainActivity"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

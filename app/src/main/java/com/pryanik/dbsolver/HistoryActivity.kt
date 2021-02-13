@@ -34,7 +34,7 @@ class HistoryActivity : AppCompatActivity() {
                 fds.add(pair.first)
                 dcmps.add(pair.second)
             }
-        return HistoryRecyclerAdapter(fds, dcmps, dates)
+        return HistoryRecyclerAdapter(fds, dcmps, dates, this)
     }
 
     private fun load(name: String): Pair<String, String> {

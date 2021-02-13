@@ -2,7 +2,8 @@ package com.pryanik.dbsolver.logic
 
 import com.pryanik.dbsolver.Log
 
-const val arrow = "<sup>→</sup>"
+const val charArrow = '→'
+const val arrow = "<sup>$charArrow</sup>"
 const val impl = "<sup>⇒</sup>"
 const val clPrefix = "<sup><small>+</small></sup>"
 const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"

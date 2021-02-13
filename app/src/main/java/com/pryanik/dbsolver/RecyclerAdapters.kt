@@ -1,5 +1,7 @@
 package com.pryanik.dbsolver
 
+import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -13,8 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.dbsolver.R
 import kotlin.math.min
 
+
 class FDRecyclerAdapter(
-    private val values: MutableList<Pair<String, String>>,
+    val values: MutableList<Pair<String, String>>,
     private val h: Handler,
     private val rv: RecyclerView
 ) : RecyclerView.Adapter<FDRecyclerAdapter.FDViewHolder>() {
@@ -174,6 +177,7 @@ class HistoryRecyclerAdapter(
     private val FDs: List<String>,
     private val dcmps: List<String>,
     private val dates: List<String>,
+    private val context: Context,
 ) : RecyclerView.Adapter<HistoryRecyclerAdapter.HistoryViewHolder>() {
 
     override fun getItemCount() = min(FDs.size, dcmps.size)
@@ -190,9 +194,23 @@ class HistoryRecyclerAdapter(
         holder.txtDate.text = dates[position]
     }
 
-    inner class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener {
         val txtFD: TextView = itemView.findViewById(R.id.txtHistoryFD)
         val txtDcmp: TextView = itemView.findViewById(R.id.txtHistoryDcmp)
         val txtDate: TextView = itemView.findViewById(R.id.txtHistoryDate)
+
+        init {
+            txtFD.setOnClickListener(this)
+            txtDcmp.setOnClickListener(this)
+            txtDate.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+            val intent = Intent(context, MainActivity::class.java)
+            intent.putExtra("fds", FDs[adapterPosition])
+            intent.putExtra("dcmps", dcmps[adapterPosition])
+            context.startActivity(intent)
+        }
     }
 }
