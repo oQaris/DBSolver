@@ -3,8 +3,6 @@ package com.pryanik.dbsolver.logic
 import com.google.common.collect.HashMultiset
 import com.pryanik.dbsolver.Log
 
-//todo Избавиться от .toMutableSet()
-
 fun minCover(rel: Relations, isLog: Boolean = false): Relations {
     Log.setLogging(isLog)
     var out = rel.copy()
@@ -78,10 +76,7 @@ fun minKeys(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
             minLenKey = det.size
         }
     }
-    for (k in keys) {
-        Log.ln(toStr(k))
-    }
-    //keys.forEach { Log.ln(toStr(it)) }
+    keys.forEach { Log.ln(toStr(it)) }
     Log.ln()
     Log.restoreLogging()
     return keys
@@ -93,7 +88,7 @@ fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
     val out = Relations()
     for ((det, cl) in allClosure(rel)) {
         cl.minus(det).forEach {
-            out[det.toMutableSet()] = mutableSetOf(it)
+            out.getOrPut(det.toMutableSet()) { mutableSetOf(it) }.add(it)
             Log.ln("${det f it}")
         }
     }
@@ -102,7 +97,7 @@ fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
     return out
 }
 
-fun decomposition(rel: Relations, isLog: Boolean = false): List<Set<String>> {
+fun decomposition(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
     Log.setLogging(isLog)
     Log.ln("Декомпозиция до БКНФ:", "b")
     Log.ln("• 1НФ\t(Все атрибуты имеют атомарное значение):", "i")
@@ -149,33 +144,36 @@ fun decomposition(rel: Relations, isLog: Boolean = false): List<Set<String>> {
     Log.ln("• НФБК - В разработке!", "i")
     Log.ln()
     Log.restoreLogging()
-    return decomp
+    return decomp.toSet()
 }
 
-fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {
+fun isLosslessJoin(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {
     Log.setLogging(isLog)
     Log.ln("Проверка декомпозиции на свойство соединения без потерь:", "b")
     val attrIdx = rel.allAttr.toSortedSet().toList()
     val dcmpIdx = dcmp.toList()
     val matrix = Array(dcmpIdx.size) { Array(attrIdx.size) { "" } }
+
+    // Инициализация
     for (i in matrix.indices)
         for (j in matrix[i].indices)
             if (dcmpIdx[i].contains(attrIdx[j]))
                 matrix[i][j] = "a"
             else matrix[i][j] = "${i + 1}"
-
     Log.ln("Исходная таблица:", "i")
-    printMtx(matrix, attrIdx, dcmpIdx)
-    var isLossConnectProperty: Boolean
-    for ((k, v) in rel.entries) {
+    if (isLog) printMtx(matrix, attrIdx, dcmpIdx)
+
+    if (isLineA(matrix, isLog))
+        return true
+
+    // Главный цикл
+    for ((k, v) in minCover(rel)/*.singlePairs*/) {
         Log.ln("${k f v}:", "i")
-        // Logic
-        var setIdxRow = mutableSetOf<Int>()
-        for (i in dcmpIdx.indices)
-            setIdxRow.add(i)
+        var setIdxRow = dcmpIdx.indices.toSet()
+
+        // Формируем множество номеров строк
         k.forEach { attr ->
             val habr = HashMultiset.create<String>()
-            val curSetIdxRow = mutableSetOf<Int>()
             val wCol = attrIdx.indexOf(attr)
             for (i in matrix.indices)
                 habr.add(matrix[i][wCol])
@@ -187,11 +185,11 @@ fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
                     max = habr.count(it)
                 }
             }
-            for (i in matrix.indices)
-                if (matrix[i][wCol] == l)
-                    curSetIdxRow.add(i)
-            setIdxRow = setIdxRow.intersect(curSetIdxRow).toMutableSet()
+            setIdxRow = setIdxRow.intersect(
+                matrix.indices.filter { matrix[it][wCol] == l })
         }
+
+        // Редактируем таблицу
         v.forEach { attr ->
             val wCol = attrIdx.indexOf(attr)
             var flag = false
@@ -207,24 +205,37 @@ fun isLosslessConnection(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
                     matrix[i][wCol] = matrix[setIdxRow.first()][wCol]
                 }
         }
-        printMtx(matrix, attrIdx, dcmpIdx)
-        for (i in matrix.indices) {
-            isLossConnectProperty = true
-            for (j in 1 until matrix[i].size)
-                if (matrix[i][j - 1] != matrix[i][j])
-                    isLossConnectProperty = false
-            if (isLossConnectProperty && matrix[i][0] == "a") {
-                Log.ln("Строка ${i + 1} полностью состоит из 'a' $impl декомпозиция обладает свойством соединения без потерь!")
-                Log.ln()
-                Log.restoreLogging()
-                return true
-            }
-        }
+        if (isLog) printMtx(matrix, attrIdx, dcmpIdx)
+
+        if (isLineA(matrix, isLog))
+            return true
     }
     Log.ln("Т.к. были перебраны все ФЗ, а строка, полностью состоящая из A так и не появилась, то св-во соединения без потерь НЕ выполняется!")
     Log.ln()
     Log.restoreLogging()
     return false
+}
+
+// Проверка на наличие строки из 'a'
+fun isLineA(matrix: Array<Array<String>>, isLog: Boolean = false): Boolean {
+    Log.setLogging(isLog)
+    var isFull = true
+    for (i in matrix.indices) {
+        if (matrix[i][0] != "a") continue
+
+        for (j in 1 until matrix[i].size)
+            if (matrix[i][j - 1] != matrix[i][j]) {
+                isFull = false
+                break
+            }
+        if (isFull && matrix[i][0] == "a") {
+            Log.ln("Строка ${i + 1} полностью состоит из 'a' $impl декомпозиция обладает свойством соединения без потерь!")
+            break
+        }
+    }
+    Log.ln()
+    Log.restoreLogging()
+    return isFull
 }
 
 fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {

@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.dbsolver.R
 import kotlin.math.min
 
-
 class FDRecyclerAdapter(
     val values: MutableList<Pair<String, String>>,
     private val h: Handler,

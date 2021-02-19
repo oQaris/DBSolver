@@ -9,7 +9,7 @@ infix fun <A : Set<String>> A.f(attr: String) = FD(this, setOf(attr))
 infix fun <B : Set<String>> String.f(attr: B) = FD(setOf(this), attr)
 infix fun <A : Set<String>, B : Set<String>> A.f(attr: B) = FD(this, attr)
 
-class Relations(private val funcDep: MutableMap<MutableSet<String>, MutableSet<String>> = linkedMapOf()) :
+data class Relations(private val funcDep: MutableMap<MutableSet<String>, MutableSet<String>> = linkedMapOf()) :
     MutableMap<MutableSet<String>, MutableSet<String>> by funcDep {
     val allAttr = mutableSetOf<String>()
 

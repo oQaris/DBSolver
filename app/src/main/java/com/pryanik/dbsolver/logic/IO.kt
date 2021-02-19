@@ -1,7 +1,5 @@
 package com.pryanik.dbsolver.logic
 
-import android.os.Build
-
 val delimiter = "[\\p{P}|\\s]+".toRegex()
 
 fun parseRelations(src: List<Pair<String, String>>): Relations {
@@ -12,12 +10,8 @@ fun parseRelations(src: List<Pair<String, String>>): Relations {
 
         val det = line.first.extractChars()
         det.forEach { out.allAttr.add(it) }
-        //todo исправить
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            out.putIfAbsent(det, mutableSetOf())
-        else
-            if (out[det] == null)
-                out[det] = mutableSetOf()
+        if (out[det] == null)
+            out[det] = mutableSetOf()
 
         val dep = line.second.extractChars()
         dep.forEach {
@@ -49,7 +43,7 @@ fun parseDecomposition(src: List<String>, rel: Relations): Set<Set<String>> {
     return out
 }
 
-fun parseDcompStr(src: String): List<String> {
+fun parseDcmpStr(src: String): List<String> {
     return src.split("\n").map { it.extractChars().joinToString(" ") }
 }
 

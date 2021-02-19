@@ -1,5 +1,6 @@
 package com.pryanik.dbsolver
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -29,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fAdapter: FDRecyclerAdapter
     private lateinit var dAdapter: DcmpRecyclerAdapter
     private val menuArr = Array(7) { true }
-    //private val sp = getSharedPreferences("history", MODE_PRIVATE)
 
     @AddTrace(name = "onCreateTrace", enabled = true)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         bind.dcmpRecyclerView.adapter = dAdapter
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -86,11 +87,6 @@ class MainActivity : AppCompatActivity() {
         val data = mutableListOf<Pair<String, String>>()
         if (bundle != null)
             bundle.getString("fds")?.let { parsePairs(it) }?.let { data.addAll(it) }
-        //todo убрать в продакшине
-        /*data.add("A" to "C B")
-        data.add("C" to "D E")
-        data.add("F" to "I")
-        data.add("A F" to "G H")*/
         data.add("" to "")
         return data
     }
@@ -98,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     private fun fillListDcmp(bundle: Bundle?): MutableList<String> {
         val data = mutableListOf<String>()
         if (bundle != null)
-            bundle.getString("dcmps")?.let { parseDcompStr(it) }?.let { data.addAll(it) }
+            bundle.getString("dcmps")?.let { parseDcmpStr(it) }?.let { data.addAll(it) }
         data.add("")
         return data
     }
@@ -110,7 +106,6 @@ class MainActivity : AppCompatActivity() {
 
     fun btnHistoryClick(v: MenuItem) {
         startActivity(Intent(this, HistoryActivity::class.java))
-        //Toast.makeText(this, "Скоро будет доступно!", Toast.LENGTH_SHORT).show()
     }
 
     @AddTrace(name = "btnSolveTrace", enabled = true)
@@ -132,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                         2 -> minKeys(rel, true)
                         3 -> nonTrivialFDs(rel, true)
                         4 -> decomposition(rel, true)
-                        5 -> if (dcmp.isNotEmpty()) isLosslessConnection(rel, dcmp, true)
+                        5 -> if (dcmp.isNotEmpty()) isLosslessJoin(rel, dcmp, true)
                         6 -> if (dcmp.isNotEmpty()) isFuncDepPersistence(rel, dcmp, true)
                     }
             }
@@ -176,15 +171,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun changeDecomposition() {
-        dAdapter.values.clear()
         val rel = parseRelations(fAdapter.getFDs())
         require(rel.isNotEmpty()) { "Введите функциональные зависимости!" }
+        dAdapter.values.clear()
         dAdapter.values.addAll(decomposition(rel)
             .map { set -> set.joinToString(", ") })
         dAdapter.values.add("")
         dAdapter.notifyDataSetChanged()
         //notifyItemInserted(position)
+        //notifyItemChanged(position)
         Toast.makeText(this, "Декомпозиция сгенерирована!", Toast.LENGTH_SHORT).show()
     }
 }
