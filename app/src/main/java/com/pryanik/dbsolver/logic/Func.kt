@@ -2,12 +2,26 @@ package com.pryanik.dbsolver.logic
 
 import com.pryanik.dbsolver.Log
 
+const val br = "<br/>"
+const val tagI = "i"
+const val tagB = "b"
 const val charArrow = '→'
-const val arrow = "<sup>$charArrow</sup>"
-const val impl = "<sup>⇒</sup>"
+const val arrow = "$charArrow"
+const val impl = "⇒"
 const val clPrefix = "<sup><small>+</small></sup>"
 const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"
 const val clPrefixH = "$clPrefix<sub><small>s-н</small></sub>"
+
+/*const val br = "<br/>"
+const val tagI = "i"
+const val tagB = "b"
+const val tagU = "b"
+const val charArrow = "->"
+const val arrow = charArrow
+const val impl = "=>"
+const val clPrefix = "+"
+const val clPrefixIt = "${clPrefix}S-*"
+const val clPrefixH = "${clPrefix}S-H"*/
 
 fun String.sup() = "<sup><small>$this</small></sup>"
 fun String.inf() = "<sub><small>$this</small></sub>"
@@ -39,7 +53,7 @@ fun closure(attributeSet: Set<String>, funcDeps: Relations): Set<String> {
         isChanged = false
         for ((det, dep) in funcDeps)
             if (closure.containsAll(det))
-                isChanged = closure.addAll(dep)
+                isChanged = if (!isChanged) closure.addAll(dep) else true
     }
     return closure
 }
@@ -58,7 +72,7 @@ fun hasInput(rel: Relations, isLog: Boolean = true) {
     Log.restoreLogging()
 }
 
-fun printMtx(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
+fun showMatrixAsHTML(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
     Log.l("<table border=\"1\" width=\"100%\" cellpadding=\"5\">")
     Log.l("<tr><th></th>")
     title.forEach {

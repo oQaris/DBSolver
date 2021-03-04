@@ -88,9 +88,6 @@ class FDRecyclerAdapter(
             }
         }
         if (values.count { it.first.isEmpty() && it.second.isEmpty() } > 1) {
-            //todo Сделать красиво!
-            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                values.removeIf { it.first.isNotEmpty() && it.second.isNotEmpty() }*/
             for (i in values.indices)
                 if (values[i] == "" to "") {
                     values.removeAt(i)
@@ -155,7 +152,6 @@ class DcmpRecyclerAdapter(
         focusPos = position
         values[position] = editText.text.toString()
         if (values.count { it.isEmpty() } > 1) {
-            //todo Сделать красиво!
             for (i in values.indices)
                 if (values[i] == "") {
                     values.removeAt(i)

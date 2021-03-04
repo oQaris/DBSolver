@@ -8,6 +8,8 @@ import org.junit.Test
 class AlgorithmsTest {
     private lateinit var rel4: Relations
     private lateinit var rel5: Relations
+    private lateinit var cl: Relations
+    private lateinit var exam: Relations
 
     @Before
     fun setUp() {
@@ -27,6 +29,41 @@ class AlgorithmsTest {
                 "C B A" to "B D"
             )
         )
+        cl = parseRelations(
+            listOf(
+                "G" to "H",
+                "D I" to "E G",
+                "A B" to "C D",
+                "B I" to "F"
+            )
+        )
+        exam = parseRelations(
+            listOf(
+                "G" to "H",
+                "D I" to "E G",
+                "A B" to "C D",
+                "B I" to "F"
+            )
+        )
+    }
+
+    @Test
+    fun examTest() {
+        Log.setLogging(true)
+
+        Log.ln("№4")
+        nonTrivialFDs(exam, true)
+
+        Log.ln("№5")
+        minCover(exam, true)
+        minKeys(exam, true)
+
+        val d = decomposition(exam, true)
+        assertTrue(isFuncDepPersistence(exam, d, true))
+        assertTrue(isLosslessJoin(exam, d, true))
+
+        println(Log.toString())
+        Log.restoreLogging()
     }
 
     @Test
@@ -85,7 +122,7 @@ class AlgorithmsTest {
     }
 
     @Test
-    fun isLosslessConnectionTest() {
+    fun isLosslessJoinTest() {
         val rel = parseRelations(
             listOf(
                 "A" to "B",
@@ -98,5 +135,10 @@ class AlgorithmsTest {
     @Test
     fun isFuncDepPersistenceTest() {
         assertTrue(isFuncDepPersistence(rel5, decomposition(rel5)))
+    }
+
+    @Test
+    fun otherTest() {
+        assertTrue(closure(setOf("I", "A", "B"), cl).size == 9)
     }
 }

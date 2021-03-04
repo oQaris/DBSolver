@@ -1,5 +1,7 @@
 package com.pryanik.dbsolver
 
+import com.pryanik.dbsolver.logic.br
+
 object Log {
     private var turnOn = false
     private var str = StringBuilder()
@@ -8,14 +10,14 @@ object Log {
     fun ln(line: String, tag: String = "") {
         if (turnOn)
             str.append(
-                if (tag.isEmpty()) "$line<br/>"
-                else "<$tag>$line</$tag><br/>"
+                if (tag.isEmpty()) "$line$br"
+                else "<$tag>$line</$tag>$br"
             )
     }
 
     fun ln() {
         if (turnOn)
-            str.append("<br/>")
+            str.append(br)
     }
 
     fun l(line: String, vararg tag: String) {
@@ -37,6 +39,13 @@ object Log {
         turnOn = on
     }
 
+    fun remEnd(count: Int) {
+        if (turnOn) {
+            val size = str.length
+            str.delete(size - count, size)
+        }
+    }
+
     fun restoreLogging() {
         turnOn = switchList.removeLast()
     }
@@ -47,10 +56,10 @@ object Log {
 
     /*fun toSpanned(): Spanned {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            return Html.fromHtml(str, Html.FROM_HTML_MODE_LEGACY)
+            return Html.fromHtml(toString(), Html.FROM_HTML_MODE_LEGACY)
         else {
             @Suppress("DEPRECATION")
-            return Html.fromHtml(str)
+            return Html.fromHtml(toString())
         }
     }*/
 }

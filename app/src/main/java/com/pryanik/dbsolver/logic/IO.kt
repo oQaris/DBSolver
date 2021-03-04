@@ -22,8 +22,9 @@ fun parseRelations(src: List<Pair<String, String>>): Relations {
     return out
 }
 
+const val arrowSaves = '→'
 fun parsePairs(src: String): List<Pair<String, String>> {
-    val items = src.split("$charArrow|\\n".toRegex())
+    val items = src.split("$arrowSaves|\\n".toRegex())
     require(items.size % 2 == 0) { "Не должно быть пустых пар!" }
     return items.zipWithNext { a, b ->
         a.extractChars().joinToString(" ") to

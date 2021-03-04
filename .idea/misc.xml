@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DesignSurface">
-    <option name="filePathToZoomLevelMap">
-      <map>
-        <entry key="..\:/Users/oQaris/Desktop/DBSolver/app/src/main/res/layout/activity_main.xml" value="0.3007246376811594" />
-        <entry key="..\:/Users/oQaris/Desktop/DBSolver/app/src/main/res/layout/fd_list_item.xml" value="0.2857789855072464" />
-        <entry key="..\:/Users/oQaris/Desktop/DBSolver/app/src/main/res/layout/history_list_item.xml" value="0.4008152173913043" />
-      </map>
-    </option>
-  </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK" />
 </project>
