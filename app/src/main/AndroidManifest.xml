@@ -13,7 +13,8 @@
 
         <activity
             android:name="com.pryanik.dbsolver.HistoryActivity"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.CHOOSER" />
                 <category android:name="android.intent.category.INFO" />
@@ -23,7 +24,8 @@
         <activity
             android:name="com.pryanik.dbsolver.MainActivity"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
