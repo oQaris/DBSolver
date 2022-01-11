@@ -21,6 +21,7 @@ import com.example.dbsolver.R
 import com.example.dbsolver.databinding.ActivityMainBinding
 import com.google.firebase.perf.metrics.AddTrace
 import com.pryanik.dbsolver.logic.*
+import com.pryanik.dbsolver.logic.algorithms.toBCNF
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,17 +53,11 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val arguments = intent?.extras
-        fAdapter.values.clear()
-        fAdapter.values.addAll(fillListFD(arguments))
-        fAdapter.notifyDataSetChanged()
-        dAdapter.values.clear()
-        dAdapter.values.addAll(fillListDcmp(arguments))
-        dAdapter.notifyDataSetChanged()
+        updateAdapter(intent?.extras)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu, menu)
+        menuInflater.inflate(R.menu.general_menu, menu)
         menu.forEach { it.isChecked = true }
         return super.onCreateOptionsMenu(menu)
     }
@@ -83,30 +78,11 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun fillListFD(bundle: Bundle?): MutableList<Pair<String, String>> {
-        val data = mutableListOf<Pair<String, String>>()
-        if (bundle != null)
-            bundle.getString("fds")?.let { parsePairs(it) }?.let { data.addAll(it) }
-        data.add("" to "")
-        return data
-    }
-
-    private fun fillListDcmp(bundle: Bundle?): MutableList<String> {
-        val data = mutableListOf<String>()
-        if (bundle != null)
-            bundle.getString("dcmps")?.let { parseDcmpStr(it) }?.let { data.addAll(it) }
-        data.add("")
-        return data
-    }
-
     fun txtEndSelection(v: View) {
         if (v is EditText)
             v.setSelection(v.length())
     }
 
-    fun btnHistoryClick(v: MenuItem) {
-        startActivity(Intent(this, HistoryActivity::class.java))
-    }
 
     @AddTrace(name = "btnSolveTrace", enabled = true)
     fun btnSolveClick(v: MenuItem) {
@@ -133,24 +109,22 @@ class MainActivity : AppCompatActivity() {
             }
             bind.txtResult.loadDataWithBaseURL(null, Log.toString(), null, null, null)
             save(
-                rel.toString("\n").replace("<.*?>".toRegex(), ""),
-                dcmp.joinToString("\n") { toStr(it) })
+                rel.toStr("\n").replace("<.*?>".toRegex(), ""),
+                dcmp.joinToString("\n") { toStr(it.toSetLit()) })
         } catch (e: Exception) {
             Toast.makeText(this, e.localizedMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun save(fd: String, dcmp: String) {
-        getSharedPreferences(
-            "sv-" + SimpleDateFormat(
-                "yyyy.MM.dd\nHH:mm:ss.SSS",
-                Locale.getDefault()
-            ).format(Date()), MODE_PRIVATE
-        ).edit()
-            .putString("fd", fd)
-            .putString("dcmp", dcmp)
-            .apply()
+    fun btnHistoryClick(v: MenuItem) {
+        startActivity(Intent(this, HistoryActivity::class.java))
     }
+
+    fun btnClearFDClick(v: MenuItem) {
+        updateAdapter()
+        bind.txtResult.loadUrl("about:blank")
+    }
+
 
     fun btnGenerateDecompositionClick(v: View) {
         try {
@@ -171,17 +145,54 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun updateAdapter(bundle: Bundle? = null) {
+        fAdapter.values.clear()
+        fAdapter.values.addAll(fillListFD(bundle))
+        fAdapter.notifyDataSetChanged()
+        dAdapter.values.clear()
+        dAdapter.values.addAll(fillListDcmp(bundle))
+        dAdapter.notifyDataSetChanged()
+    }
+
+    private fun fillListFD(bundle: Bundle?): MutableList<Pair<String, String>> {
+        val data = mutableListOf<Pair<String, String>>()
+        if (bundle != null)
+            bundle.getString("fds")?.let { parsePairs(it) }?.let { data.addAll(it) }
+        data.add("" to "")
+        return data
+    }
+
+    //todo Пофиксить баг с пустой декомпозицией после загрузки из истории
+    private fun fillListDcmp(bundle: Bundle?): MutableList<String> {
+        val data = mutableListOf<String>()
+        if (bundle != null)
+            bundle.getString("dcmps")?.let { parseDcmpStr(it) }?.let { data.addAll(it) }
+        data.add("")
+        return data
+    }
+
+
+    private fun save(fd: String, dcmp: String) {
+        getSharedPreferences(
+            "sv-" + SimpleDateFormat(
+                "yyyy.MM.dd\nHH:mm:ss.SSS",
+                Locale.getDefault()
+            ).format(Date()), MODE_PRIVATE
+        ).edit()
+            .putString("fd", fd)
+            .putString("dcmp", dcmp)
+            .apply()
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun changeDecomposition() {
         val rel = parseRelations(fAdapter.getFDs())
         require(rel.isNotEmpty()) { "Введите функциональные зависимости!" }
         dAdapter.values.clear()
-        dAdapter.values.addAll(decomposition(rel)
-            .map { set -> set.joinToString(", ") })
+        dAdapter.values.addAll(toBCNF(rel).map { set -> set.joinToString(", ") })
         dAdapter.values.add("")
         dAdapter.notifyDataSetChanged()
-        //notifyItemInserted(position)
-        //notifyItemChanged(position)
         Toast.makeText(this, "Декомпозиция сгенерирована!", Toast.LENGTH_SHORT).show()
     }
 }

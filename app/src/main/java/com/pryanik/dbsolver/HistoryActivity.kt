@@ -1,8 +1,13 @@
 package com.pryanik.dbsolver
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.dbsolver.R
 import com.example.dbsolver.databinding.ActivityHistoryBinding
 import java.io.File
 
@@ -25,15 +30,12 @@ class HistoryActivity : AppCompatActivity() {
         val fds = mutableListOf<String>()
         val dcmps = mutableListOf<String>()
         val dates = mutableListOf<String>()
-        File(cacheDir.parent!! + "/shared_prefs/").list()
-            ?.filter { it.startsWith("sv-") }
-            ?.reversed()
-            ?.forEach { name ->
-                val pair = load(name.dropLast(4))
-                dates.add(name.substring(3..name.length - 9))
-                fds.add(pair.first)
-                dcmps.add(pair.second)
-            }
+        savesFiles().forEach { file ->
+            val pair = load(file.name.dropLast(4))
+            dates.add(file.name.drop(3).dropLast(8))
+            fds.add(pair.first)
+            dcmps.add(pair.second)
+        }
         return HistoryRecyclerAdapter(fds, dcmps, dates, this)
     }
 
@@ -42,5 +44,31 @@ class HistoryActivity : AppCompatActivity() {
         val fd = sp.getString("fd", "")!!
         val dcmp = sp.getString("dcmp", "")!!
         return (fd to dcmp)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.history_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+
+    fun btnClearHistoryClick(item: MenuItem) {
+        AlertDialog.Builder(this)
+            .setCancelable(true)
+            .setTitle("Очистить историю?")
+            .setMessage("Все записи в истории будут удалены. Продолжить?")
+            .setPositiveButton("Да") { _: DialogInterface?, _: Int ->
+                savesFiles().forEach { it.delete() }
+                finish()
+            }
+            .setNegativeButton("Нет") { _, _ -> }
+            .create()
+            .show()
+    }
+
+    private fun savesFiles(): List<File> {
+        return File(cacheDir.parent!! + "/shared_prefs/").listFiles()!!
+            .filter { it.name.startsWith("sv-") }
+            .reversed()
     }
 }

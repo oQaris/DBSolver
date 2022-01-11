@@ -12,7 +12,14 @@
         android:title="История"
         app:showAsAction="ifRoom" />
 
-    <group android:checkableBehavior="all">
+    <item
+        android:onClick="btnClearFDClick"
+        android:title="Очистить"
+        app:showAsAction="ifRoom" />
+
+    <group
+        android:id="@+id/group_features"
+        android:checkableBehavior="all">
         <item
             android:id="@+id/action_min_cover"
             android:title="Мин. Покрытие"
