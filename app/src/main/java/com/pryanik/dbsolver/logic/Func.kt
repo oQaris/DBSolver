@@ -1,23 +1,25 @@
 package com.pryanik.dbsolver.logic
 
 import com.pryanik.dbsolver.Log
+import com.pryanik.dbsolver.logic.algorithms.Relation
 
+// Для андроида
 const val br = "<br/>"
 const val tagI = "i"
 const val tagB = "b"
-const val charArrow = '→'
-const val arrow = "$charArrow"
+const val tagU = "u"
+const val arrow = '→'
 const val impl = "⇒"
 const val clPrefix = "<sup><small>+</small></sup>"
 const val clPrefixIt = "$clPrefix<sub><small>s-*</small></sub>"
 const val clPrefixH = "$clPrefix<sub><small>s-н</small></sub>"
 
-/*const val br = "<br/>"
+// Для консоли
+/*const val br = "\n"
 const val tagI = "i"
 const val tagB = "b"
-const val tagU = "b"
-const val charArrow = "->"
-const val arrow = charArrow
+const val tagU = "u"
+const val arrow = "->"
 const val impl = "=>"
 const val clPrefix = "+"
 const val clPrefixIt = "${clPrefix}S-*"
@@ -26,27 +28,7 @@ const val clPrefixH = "${clPrefix}S-H"*/
 fun String.sup() = "<sup><small>$this</small></sup>"
 fun String.inf() = "<sub><small>$this</small></sub>"
 
-fun combinations(
-    arr: List<String>,
-    len: Int,
-    startPosition: Int = 0,
-    result: Array<String> = Array(len) { " " },
-    otv: MutableList<Set<String>> = mutableListOf()
-): MutableList<Set<String>> {
-    if (len == 0) {
-        val set = mutableSetOf<String>()
-        for (card in result) {
-            set.add(card)
-        }
-        otv.add(set)
-    } else for (i in startPosition..arr.size - len) {
-        result[result.size - len] = arr[i]
-        combinations(arr, len - 1, i + 1, result, otv)
-    }
-    return otv
-}
-
-fun closure(attributeSet: Set<String>, funcDeps: Relations): Set<String> {
+fun closure(attributeSet: Collection<String>, funcDeps: FuncDeps): Set<String> {
     val closure = attributeSet.toMutableSet()
     var isChanged = true
     while (isChanged) {
@@ -58,21 +40,23 @@ fun closure(attributeSet: Set<String>, funcDeps: Relations): Set<String> {
     return closure
 }
 
-fun toStr(set: Set<String>, anyInBrackets: Boolean = false): String {
+fun toStr(set: Collection<String>, anyInBrackets: Boolean = false): String {
     if (set.size == 1 && !anyInBrackets)
         return set.first()
     return "{${set.joinToString(",")}}"
 }
 
-fun hasInput(rel: Relations, isLog: Boolean = true) {
+fun toStr(set: Relation) = "(${set.joinToString(",") { it.lit + it.type.str }})"
+
+fun hasInput(rel: FuncDeps, isLog: Boolean = true) {
     Log.setLogging(isLog)
     Log.ln("Вы ввели:", "b")
-    Log.ln(rel.toString("<br/>"))
+    Log.ln(rel.toStr("<br/>"))
     Log.ln()
     Log.restoreLogging()
 }
 
-fun showMatrixAsHTML(matrix: Array<Array<String>>, title: List<String>, column: List<Set<String>>) {
+fun showMatrixAsHTML(matrix: Array<Array<String>>, title: List<String>, column: List<Relation>) {
     Log.l("<table border=\"1\" width=\"100%\" cellpadding=\"5\">")
     Log.l("<tr><th></th>")
     title.forEach {
@@ -81,7 +65,7 @@ fun showMatrixAsHTML(matrix: Array<Array<String>>, title: List<String>, column: 
     Log.l("</tr>")
     matrix.forEachIndexed { i, arr ->
         Log.l("<tr>")
-        Log.l(toStr(column[i]), "td")
+        Log.l(toStr(column[i].toSetLit()), "td")
         arr.forEach { Log.l(it, "td") }
         Log.l("</tr>")
     }

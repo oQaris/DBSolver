@@ -1,22 +1,23 @@
 package com.pryanik.dbsolver.logic
 
+import com.pryanik.dbsolver.logic.algorithms.Decomposition
+import com.pryanik.dbsolver.logic.algorithms.toRelation
+
 val delimiter = "[\\p{P}|\\s]+".toRegex()
 
-fun parseRelations(src: List<Pair<String, String>>): Relations {
-    val out = Relations()
+fun parseRelations(src: List<Pair<String, String>>): FuncDeps {
+    val out = FuncDeps()
     src.forEach { line ->
-        if (line.first == "" || line.second == "")
-            throw IllegalArgumentException("В функциональной зависимости должно быть только 2 части!")
+        require(line.first != "" && line.second != "")
+        { "В функциональной зависимости должно быть только 2 части!" }
 
         val det = line.first.extractChars()
-        det.forEach { out.allAttr.add(it) }
         if (out[det] == null)
             out[det] = mutableSetOf()
 
         val dep = line.second.extractChars()
         dep.forEach {
             out[det]?.add(it)
-            out.allAttr.add(it)
         }
     }
     return out
@@ -32,16 +33,16 @@ fun parsePairs(src: String): List<Pair<String, String>> {
     }.filterIndexed { index, _ -> index % 2 == 0 }
 }
 
-fun parseDecomposition(src: List<String>, rel: Relations): Set<Set<String>> {
-    val out = mutableSetOf<Set<String>>()
+fun parseDecomposition(src: List<String>, rel: FuncDeps): Decomposition {
+    val dcmp = Decomposition()
     src.forEach { line ->
         val set = line.split(delimiter).toMutableSet()
         set.remove("")
-        out.add(set)
+        dcmp.add(set.toRelation())
         if (!rel.allAttr.containsAll(set))
             throw IllegalArgumentException("В декомпозиции должны находиться только атрибуты из заданного отношения!")
     }
-    return out
+    return dcmp
 }
 
 fun parseDcmpStr(src: String): List<String> {

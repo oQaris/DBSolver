@@ -1,9 +1,10 @@
 package com.pryanik.dbsolver.logic
 
-import com.google.common.collect.HashMultiset
+import com.github.shiguruikai.combinatoricskt.Combinatorics.combinations
 import com.pryanik.dbsolver.Log
+import com.pryanik.dbsolver.logic.algorithms.*
 
-fun minCover(rel: Relations, isLog: Boolean = false): Relations {
+fun minCover(rel: FuncDeps, isLog: Boolean = false): FuncDeps {
     Log.setLogging(isLog)
     var out = rel.copy()
     Log.ln("Вычисление минимального покрытия:", tagB)
@@ -27,7 +28,7 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
             val set = k.minus(setOf(it))
             val cl = closure(set, out)
             if (cl.containsAll(v)) {
-                val newMap = Relations()
+                val newMap = FuncDeps()
                 for ((t, u) in out) {
                     if (t == k)
                         newMap.getOrPut(set.toMutableSet()) { u }.addAll(u)
@@ -39,17 +40,17 @@ fun minCover(rel: Relations, isLog: Boolean = false): Relations {
                 Log.ln("${set f v}:\t${toStr(set)}$clPrefix = ${toStr(cl)} не э ${toStr(v)} $impl $it оставляем в дет. ${k f v}")
         }
     }
-    Log.ln("Минимальное Покрытие:", tagI)
-    Log.ln(out.toString(br, isSinglePairs = true))
+    Log.ln("Минимальное Покрытие:", tagI, tagU)
+    Log.ln(out.toStr(br, isSinglePairs = true))
     Log.ln()
     Log.restoreLogging()
     return out
 }
 
-fun allClosure(rel: Relations, isLog: Boolean = false): Relations {
+fun allClosure(rel: FuncDeps, isLog: Boolean = false): FuncDeps {
     Log.setLogging(isLog)
     Log.ln("Замыкания всех наборов атрибутов:", tagB)
-    val out = Relations()
+    val out = FuncDeps()
     for (i in 1..rel.allAttr.size)
         combinations(
             rel.allAttr.toList(), i
@@ -63,7 +64,7 @@ fun allClosure(rel: Relations, isLog: Boolean = false): Relations {
     return out
 }
 
-fun minKeys(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
+fun minKeys(rel: FuncDeps, isLog: Boolean = false): Set<Set<String>> {
     Log.setLogging(isLog)
     Log.ln("Минимальные Ключи:", tagB)
     val keys = mutableSetOf<Set<String>>()
@@ -82,38 +83,27 @@ fun minKeys(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
     return keys
 }
 
-fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
+fun nonTrivialFDs(rel: FuncDeps, isLog: Boolean = false): FuncDeps {
     Log.setLogging(isLog)
     Log.ln("Нетривиальные ФЗ с зависимой частью из 1 атрибута:", tagB)
-    val out = Relations()
-    for ((det, cl) in allClosure(rel)) {
-        cl.minus(det).forEach {
-            out.getOrPut(det.toMutableSet()) { mutableSetOf(it) }.add(it)
-            Log.ln("${det f it}")
-        }
-    }
-    Log.ln()
-    Log.restoreLogging()
-    return out
-
-    /*Log.setLogging(isLog)
-    Log.ln("Нетривиальные ФЗ с зависимой частью из 1 атрибута:", tagB)
-    val out = Relations()
+    val out = FuncDeps()
     for ((det, cl) in allClosure(rel)) {
         Log.l("${toStr(det, true)}$clPrefix = ${toStr(cl)} $impl ")
         val right = cl.minus(det)
         if (right.isEmpty())
             Log.l("трив.")
         else {
-            var flag = false
+            var existFD = false
             right.forEach {
                 out.getOrPut(det.toMutableSet()) { mutableSetOf(it) }.add(it)
-                if (!rel.singlePairs.contains(det f it))
-                    Log.l("${det f it}, ", tagU)
-                else Log.l("${det f it}, ")
-                flag = true
+                if (!rel.singlePairs.contains(det f it)) {
+                    Log.l("${det f it}", tagU)
+                    Log.l(", ")
+                } else Log.l("${det f it}, ")
+                existFD = true
             }
-            if (flag)
+            // удаляется запятая
+            if (existFD)
                 Log.remEnd(2)
         }
         Log.ln()
@@ -122,64 +112,41 @@ fun nonTrivialFDs(rel: Relations, isLog: Boolean = false): Relations {
     Log.l("Ответ ")
     Log.l("(не учитывая исходные ФЗ):", tagU)
     out.singlePairs.forEach {
-        Log.l(" $it,", tagB)
+        Log.l(" $it,")
     }
+    Log.remEnd(1)
+    Log.ln(".")
     Log.ln()
     Log.restoreLogging()
-    return out*/
+    return out
 }
 
-fun decomposition(rel: Relations, isLog: Boolean = false): Set<Set<String>> {
+fun decomposition(rel: FuncDeps, isLog: Boolean = false) {
     Log.setLogging(isLog)
     Log.ln("Декомпозиция до БКНФ:", tagB)
+
     Log.ln("• 1НФ\t(Все атрибуты имеют атомарное значение):", tagI)
-    Log.ln("R${toStr(rel.allAttr, true)}")
+    Log.ln("R1${toStr(rel.allAttr.toRelation())}")
+
     Log.ln("• 2НФ\t(Каждый неключевой атрибут функц. полно зависит от ключа):", tagI)
-    val dcmp = mutableListOf<MutableSet<String>>()
-    val addedAtr = mutableSetOf<String>()
-    val key = minKeys(rel, false).first()
-    for (i in 1..key.size) {
-        combinations(
-            key.toList(), i
-        ).forEach { k ->
-            val closure = closure(k, rel)
-            if (closure.minus(k).isNotEmpty()) {
-                // Создание нового R
-                dcmp.add(mutableSetOf())
-                k.forEach {
-                    dcmp.last().add(it)
-                    if (!addedAtr.contains(it))
-                        addedAtr.add(it)
-                }
-                closure.forEach {
-                    if (!addedAtr.contains(it)) {
-                        dcmp.last().add(it)
-                        addedAtr.add(it)
-                    }
-                }
-            }
-        }
-        if (addedAtr == rel.allAttr)
-            break
+    to2NF(rel).forEachIndexed { idx, set ->
+        Log.ln("R${idx + 1}${toStr(set)}")
     }
-    dcmp.forEachIndexed { idx, set ->
-        Log.ln("R${idx + 1}${toStr(set, true)}")
-    }
+
     Log.ln("• 3НФ\t(Каждый атирбут нетранзитивно зависит от ключа):", tagI)
-    dcmp.clear()
-    val minCov = minCover(rel)
-    for ((k, v) in minCov)
-        dcmp.add(k.union(v).toMutableSet())
-    dcmp.forEachIndexed { idx, set ->
-        Log.ln("R${idx + 1}${toStr(set, true)}")
+    to3NF(rel).forEachIndexed { idx, set ->
+        Log.ln("R${idx + 1}${toStr(set)}")
     }
-    Log.ln("• НФБК - В разработке!", tagI)
+
+    Log.ln("• Нормальная форма Бойса-Кодда:", tagI)
+    toBCNF(rel).forEachIndexed { idx, set ->
+        Log.ln("R${idx + 1}${toStr(set)}")
+    }
     Log.ln()
     Log.restoreLogging()
-    return dcmp.toSet()
 }
 
-fun isLosslessJoin(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {
+fun isLosslessJoin(rel: FuncDeps, dcmp: Decomposition, isLog: Boolean = false): Boolean {
     Log.setLogging(isLog)
     Log.ln("Проверка декомпозиции на свойство соединения без потерь:", tagB)
     val attrIdx = rel.allAttr.toSortedSet().toList()
@@ -189,7 +156,7 @@ fun isLosslessJoin(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = fals
     // Инициализация
     for (i in matrix.indices)
         for (j in matrix[i].indices)
-            if (dcmpIdx[i].contains(attrIdx[j]))
+            if (dcmpIdx[i].contains(attrIdx[j].toAttr()))
                 matrix[i][j] = "a"
             else matrix[i][j] = "${i + 1}"
     Log.ln("Исходная таблица:", tagI)
@@ -205,20 +172,14 @@ fun isLosslessJoin(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = fals
 
         // Формируем множество номеров строк
         k.forEach { attr ->
-            val countSet = HashMultiset.create<String>()
             val wCol = attrIdx.indexOf(attr)
-            for (i in matrix.indices)
-                countSet.add(matrix[i][wCol])
-            var l = " "
-            var max = 0
-            countSet.forEach {
-                if (countSet.count(it) > max) {
-                    l = it
-                    max = countSet.count(it)
-                }
+            val countSet = buildList {
+                matrix.forEach { row -> add(row[wCol]) }
             }
+            val l = countSet.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
             setIdxRow = setIdxRow.intersect(
-                matrix.indices.filter { matrix[it][wCol] == l })
+                matrix.indices.filter { matrix[it][wCol] == l }.toSet()
+            )
         }
 
         // Редактируем таблицу
@@ -273,12 +234,12 @@ fun isLineA(matrix: Array<Array<String>>, isLog: Boolean = false): Boolean {
     return isFull
 }
 
-fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean = false): Boolean {
+fun isFuncDepPersistence(rel: FuncDeps, dcmp: Decomposition, isLog: Boolean = false): Boolean {
     Log.setLogging(isLog)
     Log.ln("Проверка декомпозиции на свойство сохранения ФЗ:", tagB)
     Log.ln("1.")
     val dcmpIdx = dcmp.toList()
-    val crnc = Relations()
+    val crnc = FuncDeps()
     for ((t, u) in rel) {
         val clm = closure(t, rel).minus(t)
         Log.l("${toStr(t)}$clPrefixIt = ${toStr(clm)} $impl ")
@@ -287,17 +248,17 @@ fun isFuncDepPersistence(rel: Relations, dcmp: Set<Set<String>>, isLog: Boolean 
         else Log.ln("Заменяем ${t f u} на ${t f clm}")
         crnc[t] = clm.toMutableSet()
     }
-    Log.ln("УНП = {${crnc.toString("; ")}}, H = {}")
+    Log.ln("УНП = {${crnc.toStr("; ")}}, H = {}")
     Log.ln("2.")
-    Log.ln("G = {${crnc.toString("; ", isSinglePairs = true)}}")
+    Log.ln("G = {${crnc.toStr("; ", isSinglePairs = true)}}")
     Log.ln("3.")
-    val h = Relations()
+    val h = FuncDeps()
     for ((t, attr) in crnc.singlePairs) {
         Log.l("${t f attr}:\t")
         var setIdx = -1
         val un = t.union(attr)
         for (i in dcmpIdx.indices)
-            if (dcmpIdx[i].containsAll(un)) {
+            if (dcmpIdx[i].containsAll(un.toRelation())) {
                 setIdx = i + 1
                 break
             }
