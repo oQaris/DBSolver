@@ -7,27 +7,21 @@ object Log {
     private var str = StringBuilder()
     private val switchList = mutableListOf<Boolean>()
 
-    fun ln(line: String, tag: String = "") {
-        if (turnOn)
-            str.append(
-                if (tag.isEmpty()) "$line$br"
-                else "<$tag>$line</$tag>$br"
-            )
+    fun ln(line: String, vararg tags: String = arrayOf()) {
+        l(line, *tags)
+        ln()
     }
 
     fun ln() {
-        if (turnOn)
-            str.append(br)
+        if (turnOn) str.append(br)
     }
 
-    fun l(line: String, vararg tag: String) {
-        if (turnOn)
-            if (tag.isEmpty()) str.append(line)
-            else {
-                tag.reversed().forEach { str.append("<$it>") }
-                str.append(line)
-                tag.forEach { str.append("</$it>") }
-            }
+    fun l(line: String, vararg tags: String) {
+        if (turnOn) {
+            tags.reversed().forEach { str.append("<$it>") }
+            str.append(line)
+            tags.forEach { str.append("</$it>") }
+        }
     }
 
     fun clear() {
