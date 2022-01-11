@@ -1,17 +1,18 @@
 package com.pryanik.dbsolver
 
 import com.pryanik.dbsolver.logic.*
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
+import com.pryanik.dbsolver.logic.algorithms.toBCNF
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class AlgorithmsTest {
-    private lateinit var rel4: Relations
-    private lateinit var rel5: Relations
-    private lateinit var cl: Relations
-    private lateinit var exam: Relations
+    private lateinit var rel4: FuncDeps
+    private lateinit var rel5: FuncDeps
+    private lateinit var cl: FuncDeps
+    private lateinit var exam: FuncDeps
 
-    @Before
+    @BeforeEach
     fun setUp() {
         rel4 = parseRelations(
             listOf(
@@ -39,10 +40,10 @@ class AlgorithmsTest {
         )
         exam = parseRelations(
             listOf(
-                "G" to "H",
-                "D I" to "E G",
-                "A B" to "C D",
-                "B I" to "F"
+                "A" to "B C",
+                "C" to "D E",
+                "F" to "I",
+                "A F" to "H G"
             )
         )
     }
@@ -51,14 +52,14 @@ class AlgorithmsTest {
     fun examTest() {
         Log.setLogging(true)
 
-        Log.ln("№4")
-        nonTrivialFDs(exam, true)
+        /*Log.ln("№4")
+        nonTrivialFDs(exam, true)*/
 
         Log.ln("№5")
         minCover(exam, true)
         minKeys(exam, true)
 
-        val d = decomposition(exam, true)
+        val d = toBCNF(exam)
         assertTrue(isFuncDepPersistence(exam, d, true))
         assertTrue(isLosslessJoin(exam, d, true))
 
@@ -129,12 +130,12 @@ class AlgorithmsTest {
                 "C" to "D",
             )
         )
-        assertFalse(isLosslessJoin(rel, decomposition(rel), true))
+        assertFalse(isLosslessJoin(rel, toBCNF(rel), true))
     }
 
     @Test
     fun isFuncDepPersistenceTest() {
-        assertTrue(isFuncDepPersistence(rel5, decomposition(rel5)))
+        assertTrue(isFuncDepPersistence(rel5, toBCNF(rel5)))
     }
 
     @Test
