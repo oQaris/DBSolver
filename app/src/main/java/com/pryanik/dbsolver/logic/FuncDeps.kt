@@ -1,7 +1,5 @@
 package com.pryanik.dbsolver.logic
 
-import com.pryanik.dbsolver.logic.algorithms.Attr
-
 data class FD(val det: Set<String>, val dep: Set<String>) {
     override fun toString() = "${toStr(det)}$arrow${toStr(dep)}"
 }
@@ -45,9 +43,4 @@ data class FuncDeps(private val data: MutableMap<MutableSet<String>, MutableSet<
             else for ((t, u) in data)
                 add("${t f u}")
         }.joinToString(separator)
-}
-
-// TODO
-data class SetAttr(private val set: MutableSet<Attr>) : MutableSet<Attr> by set {
-
 }

@@ -46,8 +46,6 @@ fun toStr(set: Collection<String>, anyInBrackets: Boolean = false): String {
     return "{${set.joinToString(",")}}"
 }
 
-fun toStr(set: Relation) = "(${set.joinToString(",") { it.lit + it.type.str }})"
-
 fun hasInput(rel: FuncDeps, isLog: Boolean = true) {
     Log.setLogging(isLog)
     Log.ln("Вы ввели:", "b")
