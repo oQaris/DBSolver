@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    @SuppressLint("NotifyDataSetChanged")
     private fun updateAdapter(bundle: Bundle? = null) {
         fAdapter.values.clear()
         fAdapter.values.addAll(fillListFD(bundle))
@@ -190,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         val rel = parseRelations(fAdapter.getFDs())
         require(rel.isNotEmpty()) { "Введите функциональные зависимости!" }
         dAdapter.values.clear()
-        dAdapter.values.addAll(toBCNF(rel).map { set -> set.joinToString(", ") })
+        dAdapter.values.addAll(toBCNF(rel).map { set -> set.toSetLit().joinToString(", ") })
         dAdapter.values.add("")
         dAdapter.notifyDataSetChanged()
         Toast.makeText(this, "Декомпозиция сгенерирована!", Toast.LENGTH_SHORT).show()

@@ -126,21 +126,21 @@ fun decomposition(rel: FuncDeps, isLog: Boolean = false) {
     Log.ln("Декомпозиция до БКНФ:", tagB)
 
     Log.ln("• 1НФ\t(Все атрибуты имеют атомарное значение):", tagI)
-    Log.ln("R1${toStr(rel.allAttr.toRelation())}")
+    Log.ln("R1${rel.allAttr.toRelation()}")
 
     Log.ln("• 2НФ\t(Каждый неключевой атрибут функц. полно зависит от ключа):", tagI)
     to2NF(rel).forEachIndexed { idx, set ->
-        Log.ln("R${idx + 1}${toStr(set)}")
+        Log.ln("R${idx + 1}${set}")
     }
 
     Log.ln("• 3НФ\t(Каждый атирбут нетранзитивно зависит от ключа):", tagI)
     to3NF(rel).forEachIndexed { idx, set ->
-        Log.ln("R${idx + 1}${toStr(set)}")
+        Log.ln("R${idx + 1}${set}")
     }
 
     Log.ln("• Нормальная форма Бойса-Кодда:", tagI)
     toBCNF(rel).forEachIndexed { idx, set ->
-        Log.ln("R${idx + 1}${toStr(set)}")
+        Log.ln("R${idx + 1}${set}")
     }
     Log.ln()
     Log.restoreLogging()
